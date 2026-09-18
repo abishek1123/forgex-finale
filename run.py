@@ -5,7 +5,7 @@ KLA PS01 - AI-Based Restoration of Degraded Images.  Team ForgeX.
     python run.py <input-dir> <output-dir>
 
 Round 2 scores END-TO-END wall clock on an H100: process start, imports, CUDA
-initialisation, reading inputs, inference, and writing outputs.  For a 1.37 M
+initialisation, reading inputs, inference, and writing outputs.  For a 1.35 M
 parameter network the forward pass is a small fraction of that, so this script
 is built to overlap the fixed costs rather than pay them in series:
 
@@ -438,7 +438,7 @@ def restore_safe(model, arrays, device, use_amp, tta):
     The VRAM of the evaluation machine is not known in advance. A batch that
     does not fit must produce a SLOWER run, never a crash: a crash scores zero,
     a slow run still scores. Halving recurses down to a single image, which
-    needs only a few MB for a 1.37 M-parameter model at 128x128.
+    needs only a few MB for a 1.35 M-parameter model at 128x128.
     """
     try:
         return restore_batch(model, arrays, device, use_amp, tta)

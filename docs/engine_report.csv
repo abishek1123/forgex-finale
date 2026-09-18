@@ -1,4 +1,4 @@
-depth,backend,served,t_median,t_min,t_max,t_std,t_mad,t_all,t_cold,reps_used,reps_total,imgs,ms_per_img,img_per_s,psnr,ssim,lpips
+depth,backend,served,t_median,t_min,t_max,t_std,t_mad,t_all,t_cold,reps_used,reps_total,imgs,ms_per_img,img_per_s,psnr,ssim,lpips_batchmean_BIASED
 3,trt,TensorRT,1.5126,1.4853,1.5435,0.024,0.0361,"[1.6266, 1.508, 1.5406, 1.537, 1.5126, 1.4892, 1.4918, 1.4853, 1.5435]",1.6266,7,9,297,5.0929,196.35,22.7333,0.50011,0.44905
 3,torch,PyTorch,2.364,2.2097,2.3994,0.0731,0.0525,"[2.2702, 2.4258, 2.2233, 2.378, 2.2097, 2.3994, 2.2852, 2.3757, 2.364]",2.2702,7,9,297,7.9596,125.63,22.7333,0.50011,0.44905
 6,trt,TensorRT,1.6138,1.5757,2.5872,0.3422,0.0295,"[1.5774, 1.6093, 1.6219, 1.6068, 1.6138, 1.6577, 2.5872, 1.5757, 1.5939]",1.5774,7,9,297,5.4336,184.04,22.9747,0.51318,0.41995

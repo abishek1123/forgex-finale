@@ -15,6 +15,10 @@ pass for each, because the reason to shrink is latency, not elegance.
 Runs SMALLEST FIRST. The small models are the cheap ones and the interesting
 ones -- if the night is cut short, we still have the bottom of the curve,
 which is where the knee lives. The 1.37M reference trains last.
+NOTE: this study was run against the Round 2 model (1,368,705 params).
+The shipped model is e1f_gate at 1,346,360 -- the conclusion about the
+capacity/accuracy slope is unchanged, but the reference row is not what
+ships. See docs/SHIP_E1F_GATE.md.
 
 Screening runs are short on purpose: round-1 evidence says 40 epochs reaches
 ~96% of the final number, which is enough to locate the knee. Confirm the
@@ -29,7 +33,7 @@ ROOT = os.path.abspath(os.path.join(HERE, ".."))
 PY   = sys.executable
 
 CONFIGS = [   # (ch, nb) -- descending parameter count; this is the REPORT order
-    (64, 16),   # 1,368,705   current model, the reference point
+    (64, 16),   # 1,368,705   Round 2 model, the reference point
     (32, 16),   #   343,361
     (32,  8),   #   195,393
     (24,  8),   #   110,257

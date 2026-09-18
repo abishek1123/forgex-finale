@@ -1,5 +1,12 @@
 # ForgeX — KLA PS01 Round 2 submission checklist
 
+> **Historical / superseded — not the shipped model.** This document describes `pr50-w50-lp05-120` (1,368,705 params; 23.632 PSNR / 0.60791 SSIM / 0.19288 LPIPS), the model shipped at **Round 2**.
+>
+> The Grand Finale ships **`e1f_gate-120`** — 1,346,360 params, **23.8297 PSNR / 0.62104 SSIM / 0.18126 LPIPS**, `models/model.pt` sha1 `f95377a21e86…`. Numbers below are kept as the record of how that decision was reached, not as a description of what ships.
+>
+> Current: [`docs/SHIP_E1F_GATE.md`](docs/SHIP_E1F_GATE.md)
+
+
 Checked against the organisers' four required components. Every box was tested
 by running it, not by reading the code.
 
@@ -94,5 +101,6 @@ sizes in one directory are grouped and batched correctly.
 | Method | PSNR | SSIM | LPIPS |
 |---|---|---|---|
 | Bicubic ×2 | 20.455 | 0.5099 | 0.4655 |
-| **ForgeX — 1.37 M params** | **23.632** | **0.6079** | **0.1929** |
-| gain | **+3.18 dB** | +0.098 | **59% lower** |
+| `pr50-w50-lp05-120` — 1,368,705 params (Round 2, superseded) | 23.632 | 0.60792 | 0.19287 |
+| **`e1f_gate-120` — 1,346,360 params (SHIPPED)** | **23.8296** | **0.62104** | **0.18126** |
+| gain over bicubic | **+3.374 dB** | **+0.111** | **61% lower** |

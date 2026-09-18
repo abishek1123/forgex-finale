@@ -1,3 +1,9 @@
+NOTE: the final column of the table below is LPIPS averaged over batches of
+32 with an unweighted mean. The last batch holds 9 of the 297 images, which
+biases it low by ~0.002 -- it reads 0.17935 where the true per-image mean is
+0.18126. Fixed in tools/engine_report.py. PSNR and SSIM are per-image and
+are unaffected. Authoritative LPIPS: 0.18126 (docs/SHIP_E1F_GATE.md).
+
 
   timing from 7 of 9 reps per cell (first 2 discarded as warmup)
   depth  backend  served      t_med(s)    t_mad    t_std   t_cold    img/s      PSNR     SSIM     LPIPS

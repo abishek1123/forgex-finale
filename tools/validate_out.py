@@ -7,7 +7,10 @@ Seven requirements, from the optimisation brief:
 """
 import numpy as np
 
-REF = dict(psnr=23.632, ssim=0.60791, lpips=0.19288)
+# The SHIPPED model, e1f_gate-120 (models/model.pt sha1 f95377a21e86...), on the
+# organisers' 297-image test set. Per-image means -- see kla2/results/final.csv.
+REF = dict(psnr=23.8296, ssim=0.62104, lpips=0.18126)
+# Round 2, superseded: dict(psnr=23.632, ssim=0.60792, lpips=0.19287)
 
 
 def contract(out, lr_shape_list=None):

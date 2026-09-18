@@ -24,7 +24,7 @@ one weight differs in the seventh decimal.
 |---|---|---|---|
 | PSNR | **23.8297** | 23.632 | **+0.198 dB** |
 | SSIM | **0.62103** | 0.60791 | **+0.0131** |
-| LPIPS | **0.17935** | 0.19288 | **-0.0135** (lower is better) |
+| LPIPS | **0.18126** | 0.19287 | **-0.0116** (lower is better) |
 
 ## Robustness -- the reason it is safe to ship
 
@@ -180,7 +180,14 @@ Recorded because each one changed a conclusion:
 2. Adjacent stops were then compared against a *per-sample* sigma pooled from the
    worst cell, rather than the standard error of the medians being compared.
    That understates separation by about sqrt(n).
-3. `bless_engines.py` first proved the weights match by comparing outputs at
+3. LPIPS was published as **0.17935**. `tools/engine_report.py` appended one
+   LPIPS value per BATCH and took an unweighted mean over batches; at batch 32
+   the final batch holds 9 of the 297 images, so weighting it 1/10 instead of
+   9/297 pulled the figure down. The true per-image mean is **0.18126**, which
+   is what `src/validate.py` (0.18130) and `kla2/results/final.csv` (0.18126)
+   independently report. Reproduced exactly from the per-image CSV before being
+   corrected. PSNR and SSIM were always per-image and were never affected.
+4. `bless_engines.py` first proved the weights match by comparing outputs at
    `1e-5`. The reference was computed on the build GPU under TF32 and re-run on
    CPU under true FP32, so correct weights disagreed at 1e-4 and were refused.
    Replaced with an exact tensor-by-tensor state_dict comparison.

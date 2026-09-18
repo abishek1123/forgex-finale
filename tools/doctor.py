@@ -18,9 +18,14 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-GOOD_SHA = "e208d13d62b3ded7b19954c273e80355e718a5f4"
+GOOD_SHA = "f95377a21e86b02ad3add4f68c784b439ae36e53"
 KNOWN = {
-    GOOD_SHA: "pr50-w50-lp05-120 (the shipped model)",
+    GOOD_SHA: "e1f_gate-120 (the shipped model)",
+    "61587e96f554f32d7538651664b58e4dfe02f2ac":
+        "e1f_gate-120 TRAINING checkpoint -- right weights, wrong container; "
+        "deploy it with swap.py, which strips it to {state_dict, config}",
+    "e208d13d62b3ded7b19954c273e80355e718a5f4":
+        "pr50-w50-lp05-120  SUPERSEDED (the Round 2 model)",
     "92f45544f57d9f5f949cda80e9a76c3066af4647": "r2-preal1  *** WRONG MODEL ***",
     "8dc5b0a9ec00fc17e110442fa47136ca38db3f32": "loss-lp05-120  *** WRONG MODEL ***",
     "a27b4d964922cce66fabeea874f901b9cba1ef0a": "v1 round 1  *** WRONG MODEL ***",

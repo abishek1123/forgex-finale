@@ -226,11 +226,23 @@ The organisers' 297-image paired test set, zero overlap with training (verified
 by SHA-1 over the raw arrays). Scores are **final-5-epoch means**, not best-epoch — see
 *How we decide what is real* below for why that distinction matters.
 
-| Method | PSNR ↑ | SSIM ↑ | LPIPS ↓ | ms / image |
-|---|---|---|---|---|
-| Bicubic ×2 (no denoising) | 20.455 | 0.5099 | 0.4655 | — |
-| **Ours — 1.37 M params** | **23.632** | **0.6079** | **0.1929** | **13.8** |
-| gain | **+3.18 dB** | +0.098 | **−59%** | |
+| Method | PSNR ↑ | SSIM ↑ | LPIPS ↓ |
+|---|---|---|---|
+| Bicubic ×2 (no denoising) | 20.455 | 0.5099 | 0.4655 |
+| `pr50-w50-lp05-120` — 1,368,705 params (Round 2, superseded) | 23.632 | 0.60792 | 0.19287 |
+| **`e1f_gate-120` — 1,346,360 params (SHIPPED)** | **23.8296** | **0.62104** | **0.18126** |
+| gain over bicubic | **+3.374 dB** | **+0.111** | **−61%** |
+
+Both model rows are scored by the same code on the same inputs on the same GPU
+(`kla2/results/final.csv`). Paired per image across all 297, the shipped model
+beats the Round 2 architecture by **+0.15181 dB** (t = 10.34), **+0.02724 SSIM**
+(297/297 images) and **−0.03171 LPIPS** (t = 13.95), and **0 of 297** images
+fall below bicubic. Full detail: [`docs/SHIP_E1F_GATE.md`](docs/SHIP_E1F_GATE.md).
+
+> Everything below this heading was written for the Round 2 model and is kept as
+> the record of how the design was arrived at. Where it says 1.37 M parameters or
+> 23.632 dB it means `pr50-w50-lp05-120`, not what ships. The shipped model's
+> numbers are the bold row above and in `docs/SHIP_E1F_GATE.md`.
 
 The shipped configuration is `--p-real 0.5 --wide-p 0.5 --w-lpips 0.05`,
 120 epochs (`train_submitted.py` reproduces it with no flags), chosen from **eleven** 120-epoch configurations scored in a single
@@ -658,7 +670,7 @@ run.py                  ← 1. EVALUATION SCRIPT: python run.py <in-dir> <out-di
 train_submitted.py      ← 2. TRAINING SCRIPT: reproduces models/model.pt, no flags
 outputs/                ← 3. DENOISED TEST OUTPUTS: all 297, plus preview.png
 requirements.txt        ← 4. ENVIRONMENT SPEC: complete pip freeze
-models/model.pt         ← trained weights, 1.37 M params, 5.5 MB
+models/model.pt         ← trained weights, 1.35 M params, 5.4 MB (e1f_gate)
 requirements-inference.txt ← the two packages run.py actually imports
 src/
   degrade.py            narrow (calibrated) + wide (OOD) degradation families
@@ -747,7 +759,7 @@ pod for the nine-run selection queue · **Training time:** 4.3 h on the 4050 /
 28 min on the 4090 (120 epochs, 60,000 steps) · **Peak VRAM:** 0.95 GB
 
 Cross-machine reproducibility was checked, not assumed: the shipped weights
-score **23.632 / 0.60791 / 0.19288** on the RTX 4090 pod and **23.632 / 0.60791 /
+score **23.632 / 0.60791 / 0.19288** (the Round 2 checkpoint) on the RTX 4090 pod and **23.632 / 0.60791 /
 0.19288** on the RTX 4050 laptop — identical to five decimals.
 
 ---

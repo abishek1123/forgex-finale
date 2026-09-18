@@ -27,7 +27,8 @@
     "img_per_s": 196.35,
     "psnr": 22.7333,
     "ssim": 0.50011,
-    "lpips": 0.44905
+    "lpips_batchmean_BIASED": 0.44905,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 3,
@@ -57,7 +58,8 @@
     "img_per_s": 125.63,
     "psnr": 22.7333,
     "ssim": 0.50011,
-    "lpips": 0.44905
+    "lpips_batchmean_BIASED": 0.44905,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 6,
@@ -87,7 +89,8 @@
     "img_per_s": 184.04,
     "psnr": 22.9747,
     "ssim": 0.51318,
-    "lpips": 0.41995
+    "lpips_batchmean_BIASED": 0.41995,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 6,
@@ -117,7 +120,8 @@
     "img_per_s": 127.35,
     "psnr": 22.9746,
     "ssim": 0.51318,
-    "lpips": 0.41994
+    "lpips_batchmean_BIASED": 0.41994,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 10,
@@ -147,7 +151,8 @@
     "img_per_s": 164.94,
     "psnr": 23.287,
     "ssim": 0.53613,
-    "lpips": 0.3491
+    "lpips_batchmean_BIASED": 0.3491,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 10,
@@ -177,7 +182,8 @@
     "img_per_s": 123.03,
     "psnr": 23.287,
     "ssim": 0.53613,
-    "lpips": 0.3491
+    "lpips_batchmean_BIASED": 0.3491,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 13,
@@ -207,7 +213,8 @@
     "img_per_s": 155.04,
     "psnr": 23.5804,
     "ssim": 0.5655,
-    "lpips": 0.27304
+    "lpips_batchmean_BIASED": 0.27304,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 13,
@@ -237,7 +244,8 @@
     "img_per_s": 120.27,
     "psnr": 23.5803,
     "ssim": 0.56549,
-    "lpips": 0.27304
+    "lpips_batchmean_BIASED": 0.27304,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 16,
@@ -267,7 +275,8 @@
     "img_per_s": 145.18,
     "psnr": 23.8296,
     "ssim": 0.62104,
-    "lpips": 0.17935
+    "lpips_batchmean_BIASED": 0.17935,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   },
   {
     "depth": 16,
@@ -297,6 +306,7 @@
     "img_per_s": 114.86,
     "psnr": 23.8297,
     "ssim": 0.62103,
-    "lpips": 0.17935
+    "lpips_batchmean_BIASED": 0.17935,
+    "lpips_note": "Averaged over batches of 32 with an unweighted mean; the final batch holds 9 of 297 images, which biases this low by ~0.002. The shipped model's true per-image LPIPS is 0.18126 (kla2/results/per_image_297_paired.csv). Fixed in tools/engine_report.py; PSNR and SSIM here are per-image and unaffected."
   }
 ]

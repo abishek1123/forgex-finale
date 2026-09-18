@@ -104,9 +104,14 @@ def score(out_dir, gt_dir, device):
         for k in range(g.shape[0]):
             P.append(psnr(o[k:k+1], g[k:k+1]))
             S.append(ssim(o[k:k+1], g[k:k+1]))
-        L.append(lpips(o, g, device=device))
+            # PER IMAGE, like PSNR and SSIM above. Appending one value per BATCH
+            # and then taking an unweighted mean over batches is wrong whenever
+            # the last batch is short: 297 images at batch 32 gives nine batches
+            # of 32 and one of 9, and weighting that final batch 1/10 instead of
+            # 9/297 moved LPIPS from 0.18126 to 0.17935. Measured, not theorised.
+            L.append(lpips(o[k:k+1], g[k:k+1], device=device))
     return (sum(P) / len(P), sum(S) / len(S),
-            sum(L) / len(L) if L == L else float("nan"), len(P))
+            sum(L) / len(L) if L else float("nan"), len(P))
 
 
 def _report(rows, backends, depths, a):

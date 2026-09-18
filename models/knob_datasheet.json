@@ -1,124 +1,124 @@
 {
-  "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
-  "weight_sha1": "e208d13d62b3",
+  "gpu": "NVIDIA H100 NVL",
+  "weight_sha1": "f95377a21e86",
   "batch": 32,
   "dtype": "fp16",
   "hw": 128,
   "nb_full": 16,
   "rounds": 5,
-  "note": "ms_per_img measured on this GPU; FLOPs do not predict it",
+  "note": "ms_per_img measured on this GPU; FLOPs do not predict it. Quality columns are hardware-independent. Re-measure timings on your own hardware with tools/calibrate_knob.py.",
   "rows": [
     {
       "depth": 3,
-      "ms_per_img": 1.5184,
-      "spread_pct": 1.1,
-      "gflops": 13.42,
-      "psnr": 22.4691,
-      "ssim": 0.47505
+      "ms_per_img": 0.4041,
+      "spread_pct": 1.0,
+      "gflops": 11.707,
+      "psnr": 22.7333,
+      "ssim": 0.50011
     },
     {
       "depth": 4,
-      "ms_per_img": 1.7619,
-      "spread_pct": 1.0,
-      "gflops": 15.836,
-      "psnr": 22.5085,
-      "ssim": 0.4791
+      "ms_per_img": 0.4877,
+      "spread_pct": 0.5,
+      "gflops": 14.192,
+      "psnr": 22.7849,
+      "ssim": 0.50128
     },
     {
       "depth": 5,
-      "ms_per_img": 2.0084,
-      "spread_pct": 0.9,
-      "gflops": 18.252,
-      "psnr": 22.5809,
-      "ssim": 0.48877
+      "ms_per_img": 0.5696,
+      "spread_pct": 1.5,
+      "gflops": 16.678,
+      "psnr": 22.8953,
+      "ssim": 0.50754
     },
     {
       "depth": 6,
-      "ms_per_img": 2.2527,
-      "spread_pct": 0.8,
-      "gflops": 20.667,
-      "psnr": 22.7242,
-      "ssim": 0.50423
+      "ms_per_img": 0.6492,
+      "spread_pct": 1.5,
+      "gflops": 19.163,
+      "psnr": 22.9746,
+      "ssim": 0.51318
     },
     {
       "depth": 7,
-      "ms_per_img": 2.5002,
-      "spread_pct": 0.8,
-      "gflops": 23.083,
-      "psnr": 22.855,
-      "ssim": 0.51414
+      "ms_per_img": 0.7307,
+      "spread_pct": 1.0,
+      "gflops": 21.648,
+      "psnr": 23.0457,
+      "ssim": 0.51643
     },
     {
       "depth": 8,
-      "ms_per_img": 2.7436,
+      "ms_per_img": 0.811,
       "spread_pct": 0.7,
-      "gflops": 25.499,
-      "psnr": 22.9667,
-      "ssim": 0.52333
+      "gflops": 24.133,
+      "psnr": 23.168,
+      "ssim": 0.52488
     },
     {
       "depth": 9,
-      "ms_per_img": 2.9897,
-      "spread_pct": 0.7,
-      "gflops": 27.915,
-      "psnr": 23.0903,
-      "ssim": 0.5342
+      "ms_per_img": 0.8948,
+      "spread_pct": 1.0,
+      "gflops": 26.618,
+      "psnr": 23.2131,
+      "ssim": 0.52879
     },
     {
       "depth": 10,
-      "ms_per_img": 3.2358,
-      "spread_pct": 0.6,
-      "gflops": 30.331,
-      "psnr": 23.1882,
-      "ssim": 0.54251
+      "ms_per_img": 0.977,
+      "spread_pct": 1.0,
+      "gflops": 29.104,
+      "psnr": 23.287,
+      "ssim": 0.53613
     },
     {
       "depth": 11,
-      "ms_per_img": 3.4816,
-      "spread_pct": 0.5,
-      "gflops": 32.747,
-      "psnr": 23.3167,
-      "ssim": 0.55601
+      "ms_per_img": 1.0602,
+      "spread_pct": 0.9,
+      "gflops": 31.589,
+      "psnr": 23.3111,
+      "ssim": 0.54026
     },
     {
       "depth": 12,
-      "ms_per_img": 3.7262,
-      "spread_pct": 0.4,
-      "gflops": 35.163,
-      "psnr": 23.3532,
-      "ssim": 0.56853
+      "ms_per_img": 1.1417,
+      "spread_pct": 0.9,
+      "gflops": 34.074,
+      "psnr": 23.467,
+      "ssim": 0.555
     },
     {
       "depth": 13,
-      "ms_per_img": 3.972,
-      "spread_pct": 0.4,
-      "gflops": 37.579,
-      "psnr": 23.4064,
-      "ssim": 0.5767
+      "ms_per_img": 1.2248,
+      "spread_pct": 1.0,
+      "gflops": 36.559,
+      "psnr": 23.5803,
+      "ssim": 0.5655
     },
     {
       "depth": 14,
-      "ms_per_img": 4.2189,
-      "spread_pct": 0.2,
-      "gflops": 39.995,
-      "psnr": 23.3931,
-      "ssim": 0.58433
+      "ms_per_img": 1.306,
+      "spread_pct": 0.7,
+      "gflops": 39.045,
+      "psnr": 23.7114,
+      "ssim": 0.58017
     },
     {
       "depth": 15,
-      "ms_per_img": 4.4623,
-      "spread_pct": 0.2,
-      "gflops": 42.411,
-      "psnr": 23.5229,
-      "ssim": 0.59257
+      "ms_per_img": 1.3889,
+      "spread_pct": 0.8,
+      "gflops": 41.53,
+      "psnr": 23.8269,
+      "ssim": 0.59228
     },
     {
       "depth": 16,
-      "ms_per_img": 4.7082,
-      "spread_pct": 0.2,
-      "gflops": 44.827,
-      "psnr": 23.632,
-      "ssim": 0.60792
+      "ms_per_img": 1.4705,
+      "spread_pct": 0.7,
+      "gflops": 44.015,
+      "psnr": 23.8296,
+      "ssim": 0.62104
     }
   ]
 }

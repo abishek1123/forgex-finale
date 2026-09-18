@@ -28,9 +28,15 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 
-GOOD = "e208d13d62b3ded7b19954c273e80355e718a5f4"        # pr50-w50-lp05-120, deploy
+GOOD = "f95377a21e86b02ad3add4f68c784b439ae36e53"        # e1f_gate-120, deploy
 KNOWN = {
-    GOOD:                                       "pr50-w50-lp05-120   CORRECT",
+    GOOD:                                       "e1f_gate-120        CORRECT",
+    "61587e96f554f32d7538651664b58e4dfe02f2ac": "e1f_gate-120 TRAINING checkpoint -- "
+                                                "right weights, wrong container. "
+                                                "Deploy it with swap.py, which strips "
+                                                "it to {state_dict, config}.",
+    "e208d13d62b3ded7b19954c273e80355e718a5f4": "pr50-w50-lp05-120   SUPERSEDED "
+                                                "(Round 2 model)",
     "92f45544f57d9f5f949cda80e9a76c3066af4647": "r2-preal1           *** WRONG ***",
     "8dc5b0a9ec00fc17e110442fa47136ca38db3f32": "loss-lp05-120       *** WRONG ***",
     "a27b4d964922cce66fabeea874f901b9cba1ef0a": "v1, ROUND 1         *** WRONG ***",

@@ -4,48 +4,150 @@ Restores degraded semiconductor inspection images: removes signal-dependent
 noise and upscales 2× (128×128 → 256×256, or 256×256 → 512×512).
 
 **Team ForgeX** — Abishek SR · Anmol BA · Hardik — VIT Vellore
-SEMICON India Hackathon 2026 · Problem Statement PS01 · **Round 2**
+SEMICON India Hackathon 2026 · Problem Statement PS01 · **Grand Finale**
 
-> Round-1 archive, including full commit history: `github.com/abishek1123/forgex`
+Shipped model `e1f_gate`, 1,346,360 parameters, `models/model.pt` sha1
+`f95377a21e86…` — **23.8297 PSNR / 0.62104 SSIM / 0.18126 LPIPS** on the
+organisers' 297-image test set.
 
 ---
 
-## Quick start
-
-**Reviewer — just run the model:**
+## Quick start — evaluators
 
 ```bash
 pip install -r requirements-inference.txt     # torch + numpy, nothing else
 python run.py <input-dir> <output-dir>
 ```
 
-**Team — fresh laptop, from zero:**
+That is the whole submission path. `run.py` imports only torch and numpy,
+inlines the network definition, and resolves its weights to `models/model.pt`.
+It runs on CPU if no GPU is present — use `requirements-cpu.txt` instead if the
+CUDA 12.6 wheels above do not resolve on your machine. CPU and GPU agree to
+0.0001 dB; the committed `outputs/` were produced on GPU under fp16 autocast.
+
+**Contract.** In: `.npy`, `(H,W)` float32, any range. Out: `.npy` float32
+`(2H,2W)`, same filename, finite, clamped to `[0,1]`, trailing singleton axis
+preserved if the input had one. If you point it at a dataset directory holding
+`GT/` and `NoisyLR/`, it finds the inputs one level down and says so.
+
+**Check you have what we shipped:**
 
 ```bash
-git clone https://github.com/abishek1123/forgex-kla-ps01.git
-cd forgex-kla-ps01
+python tools/verify_shipped.py                # hash, re-run, compare to outputs/
+```
 
-python --version                              # MUST be 3.13 (see .python-version)
+It compares `models/model.pt` by sha1 — never by filename and never by size —
+then re-runs the model and diffs against the 297 restorations committed in
+`outputs/`. Anything other than `CORRECT` means stop.
+
+---
+
+## The quality / speed knob
+
+The same weights serve fourteen operating points. `--depth N` runs only the
+first N of the 16 residual blocks; nothing is retrained, reloaded or distilled.
+
+```bash
+python run.py <in> <out> --depth 10          # a named setting
+python run.py <in> <out> --budget-ms 1.0     # best quality inside a latency budget
+python run.py <in> <out> --budget-ms 1.0 --prefer ssim
+python run.py --list-knob                    # the measured menu, then exit
+```
+
+**Why a shallow run is safe.** The network does not predict the image. It
+predicts a *correction* to a bicubic upsample, through a tail initialised at
+zero, added back in FP32. Remove blocks and the correction gets smaller, so the
+output slides back toward the bicubic baseline rather than toward noise —
+measured, even depth 0 is still +2.21 dB over bicubic.
+
+**`--budget-ms` maximises quality inside the budget**, not depth. Those differ:
+a quality curve can be non-monotone, and "the deepest setting that fits" will
+then hand you one that is strictly worse. It reads
+`models/knob_datasheet.json`, which is **measured on the machine that wrote
+it** — FLOPs do not predict latency here. To calibrate it for your own
+hardware:
+
+```bash
+python tools/calibrate_knob.py --data <organisers-test-set> --rounds 5
+```
+
+**`--depth 1` will not obey you.** Depths 0–2 are not monotone (22.6648,
+22.6564, 22.6501 — adding a block there makes the output slightly worse), so
+`MIN_SAFE_DEPTH` is 3 and anything below it warns and clamps.
+
+---
+
+## TensorRT, with a PyTorch fallback
+
+`run_fast.py` takes the same arguments and the same contract, and chooses the
+runtime:
+
+```bash
+python run_fast.py <in> <out>                # TensorRT if it can, PyTorch if not
+python run_fast.py <in> <out> --no-trt       # force PyTorch
+```
+
+It imports **numpy only**, reads the `.npy` *headers* — never the pixels — to
+learn the shapes, and then `os.execv`s into the right runner. The decision has
+to happen before `import torch`, which is 54% of a scored run; probing with
+torch already loaded would spend the entire saving. The probe costs 0.12 s, and
+the first line it prints says which path it took.
+
+Measured on an H100 NVL over the 297 images: **2.046 s against PyTorch's
+2.586 s at full depth (1.26×), 1.513 s against 2.364 s at depth 3 (1.56×)**,
+for a PSNR difference of 0.0001 dB. Warm steady state is 1.61 s, 184 images/s.
+
+It falls back to `run.py` — unchanged, PyTorch — on fifteen conditions,
+including TensorRT missing, no engine at the requested depth, a weights/engine
+hash mismatch, an input outside the engine's shape profile, and any TensorRT
+failure at run time before an output has been written. Being wrong costs a
+tenth of a second, never a result.
+
+**The engines are not in this repository.** A `.plan` is compiled machine code
+welded to one GPU family, one TensorRT version and one checkpoint hash — 99 MB
+of build artefact. A fresh clone therefore runs correctly on PyTorch. To build
+them (five engines, ~145 s, needs TensorRT 11.3 and cuda-python):
+
+```bash
+python tools/trt_native.py all --depths 3,6,10,13,16 --portable
+python tools/bless_engines.py                # proves engine <-> checkpoint identity
+```
+
+---
+
+## Reproducing the numbers
+
+```bash
+python tools/package_check.py --data <organisers-test-set>   # the submission, end to end
+python tools/calibrate_knob.py --data <test-set> --rounds 5  # the knob datasheet
+python tools/engine_report.py --test <test-set> --reps 9 --warmup 2
+python tools/engine_report.py --from-json docs/engine_report.json   # no GPU needed
+python train_submitted.py --data <dataset>                   # retrain from scratch
+```
+
+Datasets are **not** in the repo — see [`docs/DATA.md`](docs/DATA.md).
+
+**[`docs/SHIP_E1F_GATE.md`](docs/SHIP_E1F_GATE.md)** is the technical summary:
+the model, the 297 scores, the robustness sweep against the model it replaces,
+all five engines, the dispatcher, and a closing section recording every claim we
+withdrew and the measurement that overturned it.
+
+---
+
+## Team setup
+
+```bash
+git clone https://github.com/abishek1123/forgex-finale.git
+cd forgex-finale
+
 python -m venv .venv
-.venv\Scripts\activate                        # Windows
+.venv\Scripts\activate                       # Windows
 # source .venv/bin/activate                   # Linux / macOS
 
 pip install -r requirements.txt               # GPU, CUDA 12.6
 # pip install -r requirements-cpu.txt         # no NVIDIA GPU
 
-python tools/verify_shipped.py                # confirms you have the right weights
-```
-
-Datasets are **not** in the repo — see [`docs/DATA.md`](docs/DATA.md) for what
-they are, where they go, and how to copy them. `verify_shipped.py` works without
-them (it checks the hash and reports PARTIAL).
-
-**The three commands that matter:**
-
-```bash
-python run.py <in> <out>                                   # inference
-python train_submitted.py --data <dataset>                 # reproduce the model
-python tools/package_check.py --data <organisers-test-set> # verify the submission
+python tools/verify_shipped.py
 ```
 
 Before you push, demo, or hand over: **`python tools/verify_shipped.py`**. The

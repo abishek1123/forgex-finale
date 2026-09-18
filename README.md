@@ -116,41 +116,52 @@ measure.
 
 ## TensorRT, with a PyTorch fallback
 
-`run_fast.py` takes the same arguments and the same contract, and chooses the
-runtime:
+`run.py` chooses its own runtime. There is no second entry point and no flag to
+remember — the same command a judge already typed uses TensorRT whenever
+TensorRT can serve the request, and PyTorch whenever it cannot.
 
 ```bash
-python run_fast.py <in> <out>                # TensorRT if it can, PyTorch if not
-python run_fast.py <in> <out> --no-trt       # force PyTorch
+python run.py <in> <out>              # TensorRT if it can, PyTorch if not
+python run.py <in> <out> --no-trt     # force PyTorch
 ```
 
-It imports **numpy only**, reads the `.npy` *headers* — never the pixels — to
-learn the shapes, and then `os.execv`s into the right runner. The decision has
-to happen before `import torch`, which is 54% of a scored run; probing with
-torch already loaded would spend the entire saving. The probe costs 0.12 s, and
-the first line it prints says which path it took.
+**Why the probe is at the top of the file.** `import torch` is 54% of a scored
+run — 1.445 s of 2.686 s on an H100 — while the model's own arithmetic is 4.7%.
+A runtime chosen *after* importing torch would already have spent the entire
+saving. So the first thing `run.py` does, above its own torch import, is read
+the `.npy` **headers** (never the pixels) to learn the shapes, and then
+`os.execv` into the TensorRT runner — which replaces the process, so nothing is
+imported twice. The probe costs ~0.12 s. When it dispatches it says so:
 
-Measured on an H100 NVL over the 297 images: **2.046 s against PyTorch's
-2.586 s at full depth (1.26×), 1.513 s against 2.364 s at depth 3 (1.56×)**,
-for a PSNR difference of 0.0001 dB. Warm steady state is 1.61 s, 184 images/s.
+```
+[run.py] TensorRT: gate_d16.plan (depth 16, fp32(tf32))  probe 0.144s
+```
 
-It falls back to `run.py` — unchanged, PyTorch — on fifteen conditions,
-including TensorRT missing, no engine at the requested depth, a weights/engine
-hash mismatch, an input outside the engine's shape profile, and any TensorRT
-failure at run time before an output has been written. Being wrong costs a
-tenth of a second, never a result.
+Measured on an H100 NVL over the 297 images: **2.046 s against PyTorch's 2.586 s
+at full depth (1.26×), 1.513 s against 2.364 s at depth 3 (1.56×)**, for a PSNR
+difference of 0.0001 dB. Warm steady state is 1.61 s, 184 images/s.
+
+**It falls through to the PyTorch path** — unchanged, 12/12 stress — on any of:
+`--no-trt`; `--tta`, `--half`, `--no-fp16`, `--profile`, `--list-knob`;
+`--device cpu`; no engine index; no engine at the requested depth (the depth is
+honoured exactly, never substituted); `models/model.pt` not matching the
+engine's recorded sha1; an input outside the engine's shape profile; TensorRT
+not installed; or a TensorRT failure at run time before any output has been
+written. Being wrong costs a tenth of a second, never a result.
 
 **The engines are not in this repository.** A `.plan` is compiled machine code
 welded to one GPU family, one TensorRT version and one checkpoint hash — 99 MB
-of build artefact. A fresh clone therefore runs correctly on PyTorch. To build
-them (five engines, ~145 s, needs TensorRT 11.3 and cuda-python):
+of build artefact. A fresh clone therefore runs correctly on PyTorch and says
+`engine file missing`. To build them (five engines, ~145 s, needs TensorRT 11.3
+and cuda-python):
 
 ```bash
 python tools/trt_native.py all --depths 3,6,10,13,16 --portable
 python tools/bless_engines.py                # proves engine <-> checkpoint identity
 ```
 
----
+`run_fast.py` is kept as a forwarding shim so older notes still work; it simply
+execs `run.py`.
 
 ## Reproducing the numbers
 

@@ -46,14 +46,173 @@ import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
+# --------------------------------------------------------------------------
+# TENSORRT DISPATCH.  This runs ABOVE `import torch`, which is the entire point.
+#
+# Measured on an H100: `import torch` is 1.445 s of a 2.686 s scored run (53.8%)
+# while the model's own arithmetic is 4.7%.  The choice of runtime therefore has
+# to be made BEFORE torch is imported -- probing afterwards would already have
+# spent the saving.  So this reads .npy HEADERS only (never pixels) to learn the
+# shapes, and os.execv()s into the TensorRT runner, which REPLACES the process
+# so nothing is imported twice.  The probe costs ~0.12 s.
+#
+# It falls through to the PyTorch path below -- silently, never raising -- on any
+# of: --no-trt, a flag TensorRT cannot honour, no engine index, no engine at the
+# requested depth, models/model.pt not matching the engine's recorded sha1, an
+# input outside the engine's shape profile, or tensorrt not being installed.
+# Being wrong costs a tenth of a second; it never costs a result.
+# --------------------------------------------------------------------------
+HERE = os.path.dirname(os.path.abspath(__file__))
+MIN_SAFE_DEPTH = 3                 # single definition; see the note further down
+DATASHEET = "knob_datasheet.json"
+_ENGINES = os.path.join(HERE, "models", "engines")
+_TORCH_ONLY = {"--tta", "--half", "--no-fp16", "--list-knob", "--profile"}
+
+
+def load_datasheet():
+    """-> (sheet, path) or (None, None). Defined up here because the TensorRT
+    probe needs it and the probe must run before `import torch`."""
+    for rel in (os.path.join("models", DATASHEET), DATASHEET):
+        path = os.path.join(HERE, rel)
+        if os.path.isfile(path):
+            try:
+                with open(path) as fh:
+                    return json.load(fh), path
+            except Exception:
+                pass
+    return None, None
+
+
+def _flag(argv, name):
+    for i, x in enumerate(argv):
+        if x == name and i + 1 < len(argv):
+            return argv[i + 1]
+        if x.startswith(name + "="):
+            return x.split("=", 1)[1]
+    return None
+
+
+def _hdr_span(d):
+    """(min side, max side, count) from .npy headers alone. (0,0,0) on anything odd."""
+    import numpy.lib.format as fmt
+    lo, hi, n = 10 ** 9, 0, 0
+    for f in sorted(os.listdir(d)):
+        if not f.lower().endswith(".npy"):
+            continue
+        try:
+            with open(os.path.join(d, f), "rb") as fh:
+                v = fmt.read_magic(fh)
+                shp = (fmt.read_array_header_1_0(fh) if v == (1, 0)
+                       else fmt.read_array_header_2_0(fh))[0]
+        except Exception:
+            return 0, 0, 0
+        if len(shp) < 2:
+            return 0, 0, 0
+        lo = min(lo, shp[0], shp[1]); hi = max(hi, shp[0], shp[1]); n += 1
+    return (lo, hi, n) if n else (0, 0, 0)
+
+
+def _wanted_depth(argv, nb_full):
+    """The depth the user asked for, resolved the same way resolve_depth() does."""
+    b = _flag(argv, "--budget-ms")
+    if b is not None:
+        try:
+            budget = float(b)
+        except ValueError:
+            return None
+        sheet, _ = load_datasheet()
+        if sheet is None:
+            return None
+        key = _flag(argv, "--prefer") or "psnr"
+        rows = [r for r in sheet["rows"] if r["ms_per_img"] <= budget]
+        if not rows:
+            return min(sheet["rows"], key=lambda r: r["ms_per_img"])["depth"]
+        return (max(rows, key=lambda r: (r[key], r["depth"])) if all(key in r for r in rows)
+                else max(rows, key=lambda r: r["depth"]))["depth"]
+    d = _flag(argv, "--depth")
+    if d is None:
+        return nb_full
+    try:
+        d = int(d)
+    except ValueError:
+        return None
+    if d <= 0 or d >= nb_full:
+        return nb_full
+    if d < MIN_SAFE_DEPTH:
+        # Same clamp resolve_depth() applies on the PyTorch path. Warn here too,
+        # or the TensorRT path would silently honour a different depth than the
+        # one the operator typed.
+        print("  WARNING: depth %d is below MIN_SAFE_DEPTH=%d; the quality curve is "
+              "not monotone there. Clamping to %d."
+              % (d, MIN_SAFE_DEPTH, MIN_SAFE_DEPTH), flush=True)
+    return max(d, MIN_SAFE_DEPTH)
+
+
+def _sha1_file(path):
+    import hashlib
+    h = hashlib.sha1()
+    with open(path, "rb") as fh:
+        for b in iter(lambda: fh.read(1 << 20), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+def _trt_dispatch(argv):
+    """Never returns if TensorRT can serve this invocation; otherwise returns None."""
+    try:
+        if "--no-trt" in argv or _TORCH_ONLY.intersection(argv):
+            return
+        if _flag(argv, "--device") == "cpu":
+            return
+        dirs = [a for a in argv if not a.startswith("-")]
+        if not dirs or not os.path.isdir(dirs[0]):
+            return
+        idx = os.path.join(_ENGINES, "index.json")
+        if not os.path.isfile(idx):
+            return
+        meta = json.load(open(idx))
+        engines = meta.get("engines") or []
+        if not engines:
+            return
+        nb_full = meta.get("nb_full") or max(e["depth"] for e in engines)
+        want = _wanted_depth(argv, nb_full)
+        match = [e for e in engines if e["depth"] == want]
+        if not match:
+            return
+        e = match[0]
+        plan = os.path.join(_ENGINES, e.get("plan") or "")
+        if not os.path.isfile(plan):
+            return
+        lo, hi, n = _hdr_span(dirs[0])
+        if n == 0 or not (e.get("hmin", 128) <= lo and hi <= e.get("hmax", 128)):
+            return
+        # An engine is compiled for ONE set of weights. Identity is the sha1,
+        # never the filename and never the size.
+        w = os.path.join(HERE, "models", "model.pt")
+        if e.get("weights_sha1") and os.path.isfile(w):
+            if _sha1_file(w) != e["weights_sha1"]:
+                return
+        import tensorrt  # noqa: F401
+    except Exception:
+        return
+    print("[run.py] TensorRT: %s (depth %s, %s)  probe %.3fs"
+          % (e.get("plan"), e.get("depth"), e.get("precision", "?"),
+             time.perf_counter() - _T0), flush=True)
+    os.execv(sys.executable,
+             [sys.executable, os.path.join(HERE, "tools", "trt_infer.py")]
+             + list(argv) + ["--engine", plan])
+
+
+# Returns immediately unless TensorRT can serve this exact request, in which
+# case it replaces the process and never returns.
+_trt_dispatch(sys.argv[1:])
+
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 _mark("import torch + numpy")
-
-HERE = os.path.dirname(os.path.abspath(__file__))
 
 # Kick the CUDA context off immediately, on its own thread, so the ~2-4 s of
 # driver/cuBLAS/cuDNN initialisation overlaps with reading the input directory.
@@ -263,20 +422,8 @@ _CUDA_THREAD.start()
 #     "produces garbage". Measured: even depth 0 is +2.21 dB over bicubic.
 # Measured on the 297-image test set, e1f_gate: 44.0 -> 4.3 GFLOPs (10.4x) costs
 # 1.17 dB. Depths 0-2 are NOT monotone, so MIN_SAFE_DEPTH refuses them.
-MIN_SAFE_DEPTH = 3
-DATASHEET = "knob_datasheet.json"
-
-
-def load_datasheet():
-    for rel in (os.path.join("models", DATASHEET), DATASHEET):
-        path = os.path.join(HERE, rel)
-        if os.path.isfile(path):
-            try:
-                with open(path) as fh:
-                    return json.load(fh), path
-            except Exception:
-                pass
-    return None, None
+# MIN_SAFE_DEPTH, DATASHEET and load_datasheet() are defined above the torch
+# import, because the TensorRT probe needs them and must run before it.
 
 
 def resolve_depth(args, nb_full):
@@ -500,6 +647,11 @@ def main():
                    help="print the calibrated knob datasheet and exit")
     p.add_argument("--prefer", default="psnr", choices=["psnr", "ssim"],
                    help="which metric --budget-ms maximises within the budget")
+    p.add_argument("--no-trt", action="store_true",
+                   help="force the PyTorch path even when a TensorRT engine could "
+                        "serve the request. Consumed by the dispatch probe at the "
+                        "top of this file, above `import torch`; it is declared "
+                        "here so argparse accepts it and --help documents it.")
     p.set_defaults(fp16=True)
     a = p.parse_args()
     global _TIMING

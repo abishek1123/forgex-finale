@@ -70,7 +70,12 @@ def die(msg):
 
 
 def run_script(script, indir, outdir, cwd=None):
-    cmd = [sys.executable, script, indir, outdir]
+    # --no-trt on every invocation. Step 3 compares the repo run against a run
+    # from a directory holding ONLY the four required files -- which has no
+    # models/engines/, so it would take the PyTorch path while the repo run took
+    # TensorRT. The two agree to ~1e-4 (0.0001 dB), which is correct but not
+    # byte-identical, so the comparison must pin both sides to one runtime.
+    cmd = [sys.executable, script, indir, outdir, "--no-trt"]
     r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
     if r.returncode != 0:
         print(r.stdout)

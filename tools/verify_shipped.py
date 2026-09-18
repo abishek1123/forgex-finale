@@ -91,7 +91,11 @@ def main():
 
     out = os.path.join(REPO, "_verify_tmp")
     print(f"[2/3] running run.py over {data} ...")
-    r = subprocess.run([sys.executable, "run.py", data, out], cwd=REPO,
+    # --no-trt: this check is a BYTE comparison against the committed outputs,
+    # which were produced on the PyTorch path. TensorRT agrees to ~1e-4 (worth
+    # 0.0001 dB), which is correct but not byte-identical -- so once engines
+    # exist on a machine this check would fail for a reason that is not a fault.
+    r = subprocess.run([sys.executable, "run.py", data, out, "--no-trt"], cwd=REPO,
                        capture_output=True, text=True)
     if r.returncode != 0:
         print("      FAIL:", (r.stdout + r.stderr)[-500:])

@@ -48,11 +48,13 @@ The same weights serve fourteen operating points. `--depth N` runs only the
 first N of the 16 residual blocks; nothing is retrained, reloaded or distilled.
 
 ```bash
-python run.py <in> <out> --depth 10          # a named setting
-python run.py <in> <out> --budget-ms 1.0     # best quality inside a latency budget
-python run.py <in> <out> --budget-ms 1.0 --prefer ssim
-python run.py --list-knob                    # the measured menu, then exit
+python run.py <in> <out> --depth 10
 ```
+
+That is the whole feature, and it behaves identically on any machine — it
+changes the graph, not a timing decision. `params=` in the banner drops with it
+(1.35M at full depth, 0.89M at depth 10, 0.36M at depth 3), so you can see it
+took effect.
 
 **Why a shallow run is safe.** The network does not predict the image. It
 predicts a *correction* to a bicubic upsample, through a tail initialised at
@@ -60,22 +62,57 @@ zero, added back in FP32. Remove blocks and the correction gets smaller, so the
 output slides back toward the bicubic baseline rather than toward noise —
 measured, even depth 0 is still +2.21 dB over bicubic.
 
-**`--budget-ms` maximises quality inside the budget**, not depth. Those differ:
-a quality curve can be non-monotone, and "the deepest setting that fits" will
-then hand you one that is strictly worse. It reads
-`models/knob_datasheet.json`, which is **measured on the machine that wrote
-it** — FLOPs do not predict latency here. To calibrate it for your own
-hardware:
+**`--depth 1` will not obey you.** Depths 0–2 are not monotone (22.6648,
+22.6564, 22.6501 — adding a block there makes the output slightly worse), so
+`MIN_SAFE_DEPTH` is 3 and anything below it warns and clamps. A control that
+silently honours a setting we know to be bad is not a control.
+
+### The menu
+
+```bash
+python run.py --list-knob
+```
+
+Prints all 14 settings from `models/knob_datasheet.json`. **The PSNR and SSIM
+columns are hardware-independent** — they are the real 297-image scores and
+will not change on your machine. **The ms/image column is not.** The datasheet
+records which GPU produced it; the one shipped here says `NVIDIA H100 NVL`.
+
+### Choosing by latency instead of by depth
+
+```bash
+python run.py <in> <out> --budget-ms 1.0
+python run.py <in> <out> --budget-ms 1.0 --prefer ssim
+```
+
+**How the budget is resolved — read this before relying on it.** Nothing is
+timed during the run. `--budget-ms` is a *lookup*: it filters the datasheet to
+rows whose recorded `ms_per_img` fits your budget and returns the best-quality
+survivor (maximising PSNR, or SSIM with `--prefer ssim`). It deliberately does
+**not** take the deepest setting that fits — a quality curve can be
+non-monotone, and "deepest that fits" would then hand you a setting that is
+strictly worse.
+
+Those milliseconds were measured offline by `tools/calibrate_knob.py`: 14
+depths × 5 interleaved round-robin rounds × 30 iterations at batch 32 and
+128×128, best and worst round dropped, median taken. Measuring at run time
+would cost more than the knob saves on a 297-image job.
+
+**So on hardware other than the datasheet's, the millisecond figures do not
+transfer, and the selected setting may not meet the budget you asked for.**
+`run.py` compares the datasheet's recorded GPU against the current device and
+warns when they differ. To make the budget meaningful on your machine:
 
 ```bash
 python tools/calibrate_knob.py --data <organisers-test-set> --rounds 5
 ```
 
-**`--depth 1` will not obey you.** Depths 0–2 are not monotone (22.6648,
-22.6564, 22.6501 — adding a block there makes the output slightly worse), so
-`MIN_SAFE_DEPTH` is 3 and anything below it warns and clamps.
+A few minutes on a laptop — it is roughly 90,000 timed forward passes. The
+quality columns come out identical; only the timings change.
 
----
+**If you want one number you can trust without calibrating, use `--depth`.**
+The quality of every depth is fixed and published; only the speed is yours to
+measure.
 
 ## TensorRT, with a PyTorch fallback
 

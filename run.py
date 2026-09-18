@@ -287,6 +287,23 @@ def resolve_depth(args, nb_full):
             print("  WARNING: --budget-ms needs models/knob_datasheet.json; run "
                   "tools/calibrate_knob.py on this machine. Using full depth.", flush=True)
             return None, "full depth (no datasheet)"
+        # The budget is resolved against MEASURED timings -- but they were measured
+        # on whatever machine ran calibrate_knob.py, not on this one, and nothing
+        # here is timed at run time. On different silicon the chosen setting can
+        # quietly miss the budget the operator asked for, with no error. Say so.
+        sheet_gpu = sheet.get("gpu", "")
+        try:
+            here_gpu = (torch.cuda.get_device_name(0) if torch.cuda.is_available()
+                        else "cpu")
+        except Exception:
+            here_gpu = "cpu"
+        if sheet_gpu and here_gpu and sheet_gpu != here_gpu:
+            print(f"  WARNING: --budget-ms is resolved from timings measured on "
+                  f"{sheet_gpu!r}, but this machine is {here_gpu!r}. The QUALITY "
+                  f"columns are hardware-independent; the milliseconds are not, so "
+                  f"the selected setting may not meet {args.budget_ms:.3f} ms/img "
+                  f"here. Re-measure with:  python tools/calibrate_knob.py --data "
+                  f"<test-set> --rounds 5", flush=True)
         rows = [r for r in sheet["rows"] if r["ms_per_img"] <= args.budget_ms]
         if not rows:
             fastest = min(sheet["rows"], key=lambda r: r["ms_per_img"])

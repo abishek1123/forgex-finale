@@ -1,0 +1,18 @@
+# Nine-level noise sweep for the three 120-epoch configurations that reached
+# the final selection round. Produced by tools/noise_sweep.py on the RTX 4090
+# pod; all three scored on IDENTICAL regenerated inputs, so the bicubic column
+# is shared and acts as the checksum (see docs/ENGINEERING_LOG.md 11.2).
+#   w00  = --p-real 0.3 --wide-p 0.0                 (no wide family, no LPIPS)
+#   w50  = --p-real 0.3 --wide-p 0.5                 (wide family, no LPIPS)
+#   lp05 = --p-real 0.3 --wide-p 0.5 --w-lpips 0.05  (shipped when this sweep
+#          ran; later superseded by pr50-w50-lp05-120, see ENGINEERING_LOG 12.4)
+sigma_mul,bicubic_psnr,w00_psnr,w50_psnr,lp05_psnr,w00_lpips,w50_lpips,lp05_lpips
+0.05,22.74,23.72,23.65,23.56,0.457,0.454,0.230
+0.10,21.76,23.29,23.25,23.15,0.443,0.449,0.240
+0.15,20.56,22.74,22.71,22.61,0.432,0.438,0.250
+0.19,19.58,22.30,22.24,22.12,0.433,0.433,0.263
+0.25,18.19,21.78,21.69,21.54,0.458,0.456,0.287
+0.30,17.14,21.41,21.37,21.20,0.477,0.484,0.306
+0.35,16.18,20.87,21.05,20.89,0.483,0.507,0.324
+0.40,15.31,19.34,20.80,20.64,0.495,0.527,0.340
+0.45,14.53,16.89,20.61,20.44,0.496,0.544,0.353

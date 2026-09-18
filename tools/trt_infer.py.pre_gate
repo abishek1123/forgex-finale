@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""ForgeX inference WITHOUT PyTorch. tensorrt + cuda-python + numpy only.
+
+    python tools/trt_infer.py <input-dir> <output-dir> [--engine models/forgex_fp16.plan]
+
+WHY: measured on H100, framework startup is 54% of a scored 2.69 s run --
+import torch 1.445 s -- while actual per-image compute is 4.7%. The TensorRT
+stack starts in 0.52 s against torch's 1.71 s. This process therefore imports
+NO torch at all. The engine carries the whole graph including the FP32 bicubic
+skip, so nothing needs a tensor library at runtime.
+
+Same output contract as run.py: float32, (2H,2W), finite, clamped to [0,1],
+trailing axis preserved if the input had one.
+"""
+import time
+_T0 = time.perf_counter()
+_ST = []
+def _mark(n): _ST.append((n, time.perf_counter() - _T0))
+
+import argparse, os, sys
+from concurrent.futures import ThreadPoolExecutor
+import numpy as np
+_mark("import numpy")
+
+import tensorrt as trt
+_mark("import tensorrt")
+try:
+    from cuda.bindings import runtime as cudart      # cuda-python >= 12.9
+except ImportError:
+    from cuda import cudart                          # older layout
+_mark("import cuda bindings")
+
+
+def _chk(r):
+    err = r[0] if isinstance(r, tuple) else r
+    if int(err) != 0:
+        raise RuntimeError(f"CUDA error {err}")
+    return r[1] if isinstance(r, tuple) and len(r) > 1 else None
+
+
+def load_npy(path):
+    a = np.load(path)
+    had = (a.ndim == 3 and a.shape[-1] == 1)
+    if had: a = a[..., 0]
+    if a.ndim != 2: raise ValueError(f"expected (H,W), got {a.shape}")
+    return np.ascontiguousarray(a, dtype=np.float32), had
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("input_dir"); p.add_argument("output_dir")
+    p.add_argument("--engine", default=os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "models", "forgex_fp16.plan"))
+    p.add_argument("--batch", type=int, default=32)
+    p.add_argument("--workers", type=int, default=8)
+    p.add_argument("--timing", action="store_true")
+    a = p.parse_args()
+    os.makedirs(a.output_dir, exist_ok=True)
+
+    files = sorted(f for f in os.listdir(a.input_dir) if f.lower().endswith(".npy"))
+    if not files: sys.exit(f"no .npy in {a.input_dir}")
+    reader = ThreadPoolExecutor(max_workers=a.workers)
+    futs = [reader.submit(load_npy, os.path.join(a.input_dir, f)) for f in files]
+    _mark("list + queue reads")
+
+    _chk(cudart.cudaFree(0))                       # create the CUDA context
+    _mark("cuda context")
+
+    logger = trt.Logger(trt.Logger.ERROR)
+    rt = trt.Runtime(logger)
+    with open(a.engine, "rb") as fh:
+        eng = rt.deserialize_cuda_engine(fh.read())
+    if eng is None:
+        sys.exit("engine deserialise failed -- wrong GPU arch or TRT version")
+    ctx = eng.create_execution_context()
+    _mark("engine load")
+
+    stream = _chk(cudart.cudaStreamCreate())
+    writer = ThreadPoolExecutor(max_workers=a.workers)
+    writes = []
+    arrs = [f.result() for f in futs]
+    _mark("all inputs read")
+
+    H = W = arrs[0][0].shape[0]
+    dev_in = dev_out = None; cap = 0
+    done = 0
+    for i in range(0, len(arrs), a.batch):
+        chunk = arrs[i:i + a.batch]
+        b = len(chunk)
+        x = np.stack([c[0] for c in chunk])[:, None]          # (b,1,H,W) f32
+        y = np.empty((b, 1, H * 2, W * 2), dtype=np.float32)
+        if b > cap:                                            # grow device buffers
+            if dev_in is not None:
+                _chk(cudart.cudaFree(dev_in)); _chk(cudart.cudaFree(dev_out))
+            dev_in = _chk(cudart.cudaMalloc(x.nbytes))
+            dev_out = _chk(cudart.cudaMalloc(y.nbytes)); cap = b
+        _chk(cudart.cudaMemcpyAsync(dev_in, x.ctypes.data, x.nbytes,
+             cudart.cudaMemcpyKind.cudaMemcpyHostToDevice, stream))
+        ctx.set_input_shape("lr", (b, 1, H, W))
+        ctx.set_tensor_address("lr", int(dev_in))
+        ctx.set_tensor_address("sr", int(dev_out))
+        ctx.execute_async_v3(stream)
+        _chk(cudart.cudaMemcpyAsync(y.ctypes.data, dev_out, y.nbytes,
+             cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost, stream))
+        _chk(cudart.cudaStreamSynchronize(stream))
+        y = np.nan_to_num(y, nan=0.0, posinf=1.0, neginf=0.0)
+        np.clip(y, 0.0, 1.0, out=y)
+        for k, (_, had) in enumerate(chunk):
+            arr = y[k, 0]
+            writes.append(writer.submit(
+                np.save, os.path.join(a.output_dir, files[done + k]),
+                arr[..., None] if had else arr))
+        done += b
+    _mark("inference + queue writes")
+    for w in writes: w.result()
+    reader.shutdown(wait=True); writer.shutdown(wait=True)
+    _mark("flush writes")
+
+    dt = time.perf_counter() - _T0
+    print(f"restored {len(files)} images  |  end-to-end {dt:.2f}s "
+          f"({dt/len(files)*1000:.1f} ms/image, NO PYTORCH)")
+    if a.timing:
+        print(f"\n  {'stage':<28}{'cumulative':>12}{'this stage':>12}{'%':>8}")
+        prev = 0.0
+        for n, t in _ST:
+            print(f"  {n:<28}{t:>11.3f}s{t-prev:>11.3f}s{100*(t-prev)/dt:>7.1f}%")
+            prev = t
+        print(f"  {'END-TO-END':<28}{dt:>11.3f}s{'':>11}{100.0:>7.1f}%")
+    n = len([f for f in os.listdir(a.output_dir) if f.endswith(".npy")])
+    if n < len(files): sys.exit(f"ERROR: expected {len(files)} outputs, found {n}")
+
+
+if __name__ == "__main__":
+    main()

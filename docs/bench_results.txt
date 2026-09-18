@@ -1,0 +1,47 @@
+# Raw output of tools/bench.py.
+#
+# run2.py and run3.py were two experimental alternatives to run.py -- a pinned
+# staging-buffer / CUDA-stream I/O path, and a channels_last layout fix. Both
+# measured null against the run-to-run spread and produced bit-identical output,
+# so neither shipped and neither is in the repository. This file is the timing
+# evidence behind that decision. run.py is the only inference script.
+
+input: 297 files   reps: 9   python: C:\Users\abishek sr\Desktop\kla\kla-restore\.venv\Scripts\python.exe
+
+  rep 1  run.py           9.13s   rc=0   wrote 297 files to bench_old
+  rep 1  run3.py          5.71s   rc=0   wrote 297 files to bench_new
+  rep 2  run.py           5.57s   rc=0   wrote 297 files to bench_old
+  rep 2  run3.py          5.66s   rc=0   wrote 297 files to bench_new
+  rep 3  run.py           5.53s   rc=0   wrote 297 files to bench_old
+  rep 3  run3.py          5.51s   rc=0   wrote 297 files to bench_new
+  rep 4  run.py           5.51s   rc=0   wrote 297 files to bench_old
+  rep 4  run3.py          5.49s   rc=0   wrote 297 files to bench_new
+  rep 5  run.py           5.87s   rc=0   wrote 297 files to bench_old
+  rep 5  run3.py          5.96s   rc=0   wrote 297 files to bench_new
+  rep 6  run.py           5.74s   rc=0   wrote 297 files to bench_old
+  rep 6  run3.py          6.01s   rc=0   wrote 297 files to bench_new
+  rep 7  run.py           5.66s   rc=0   wrote 297 files to bench_old
+  rep 7  run3.py          6.08s   rc=0   wrote 297 files to bench_new
+  rep 8  run.py           5.70s   rc=0   wrote 297 files to bench_old
+  rep 8  run3.py          5.72s   rc=0   wrote 297 files to bench_new
+  rep 9  run.py           5.62s   rc=0   wrote 297 files to bench_old
+  rep 9  run3.py          6.37s   rc=0   wrote 297 files to bench_new
+
+run.py        best   5.51s   median   5.66s   worst   9.13s
+run3.py       best   5.49s   median   5.72s   worst   6.37s
+
+outputs: 297 files   max abs diff 0.000e+00   PSNR between them 200.0 dB
+shapes:  [(256, 256)]
+range:   [0.0000, 1.0000]
+
+PSNR vs ground truth   run.py 12.277495   run3.py 12.277495   difference 0.000000 dB  (n=297)
+  -> the numeric difference is IRRELEVANT to the score
+
+                median     mean    stdev     best    worst
+run.py            5.66     6.04     1.17     5.51     9.13
+run3.py           5.72     5.83     0.29     5.49     6.37
+
+median difference -0.06s against a typical run-to-run spread of 0.73s
+  -> INSIDE THE NOISE. Not a measurable difference; keep run.py (the verified artifact).
+
+VERDICT: run3.py is 1.00x the speed of run.py (NOT faster - keep run.py)

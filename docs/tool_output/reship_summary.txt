@@ -1,0 +1,23 @@
+
+==============================================================================
+SUMMARY
+==============================================================================
+  in-distribution : organisers' 297-image test set                          OK               docs_tmp/reship_testset.txt
+  in-distribution : our 200-image held-out split                            OK               docs_tmp/reship_split.txt
+  OOD : withheld content block 2868-3345                                    OK               docs_tmp/reship_onblock.txt
+  OOD : 256 -> 512 with no training at that scale                           OK               docs_tmp/reship_512.txt
+  OOD : ten labelled NFFA morphologies                                      OK               docs_tmp/reship_per_category.txt
+  OOD : nine-level noise sweep                                              OK               docs_tmp/reship_noise_sweep.txt
+  OOD : nine-axis suite, scored on the ORGANISERS' test set                 OK               docs_tmp/reship_ood_testset.txt
+  hallucination guard : energy above the input Nyquist                      OK               docs_tmp/reship_hf_energy.txt
+  degradation fit (R^2)                                                     OK               docs_tmp/reship_calibrate.txt
+  noise physics : speckle vs Poisson by BIC                                 OK               docs_tmp/reship_noise_physics.txt
+  packaging : outputs/ for the organisers' test set + clean-directory run   FAILED rc=1      docs_tmp/reship_package_check.txt
+
+  10 of 11 steps OK
+
+  results.csv now holds the new rows. Send me:
+     docs_tmp/reship_summary.txt
+     results.csv
+     docs_tmp/per_category.csv
+     noise_sweep_ship.csv

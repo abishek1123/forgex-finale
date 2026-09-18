@@ -1,0 +1,294 @@
+=== runs found ===
+  loss-lp05-120              120 ep
+  loss-lp15-120              120 ep
+  loss-ss30-120              120 ep
+  lp02-120                   120 ep
+  pr30-w00-120               120 ep
+  pr30-w100-120              120 ep
+  pr30-w50-120               120 ep
+  pr30-w50-hard-120          120 ep
+  pr50-w00-120               120 ep
+  pr50-w50-120               120 ep
+  pr50-w50-lp05-120          120 ep
+
+=== 1. in-distribution, final-5 mean ===
+run                             PSNR     SSIM    ep
+pr30-w50-120                 23.2258   0.5901   120
+pr30-w00-120                 23.2238   0.5920   120
+pr50-w50-120                 23.2226   0.5981   120
+pr50-w00-120                 23.2210   0.5987   120
+pr30-w100-120                23.1939   0.5915   120
+lp02-120                     23.1741   0.5861   120
+loss-lp05-120                23.1153   0.5829   120
+pr50-w50-lp05-120            23.1127   0.5884   120
+pr30-w50-hard-120            23.1117   0.5919   120
+loss-ss30-120                23.0943   0.5940   120
+loss-lp15-120                23.0091   0.5762   120
+
+=== 2. real held-out incl. LPIPS ===
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+appended to results.csv
+
+=== 3. nine-axis OOD ===
+9 axes x 40 images, device=cuda
+
+  noise 0.05      bicubic  22.97   loss-lp05-120 +1.07  loss-lp15-120 +1.00  loss-ss30-120 +1.13  lp02-120 +1.13  pr30-w00-120 +1.19  pr30-w100-120 +1.14  pr30-w50-120 +1.17  pr30-w50-hard-120 +1.08  pr50-w00-120 +1.15  pr50-w50-120 +1.14  pr50-w50-lp05-120 +1.06
+  noise 0.19      bicubic  19.77   loss-lp05-120 +2.83  loss-lp15-120 +2.69  loss-ss30-120 +2.86  lp02-120 +2.90  pr30-w00-120 +2.99  pr30-w100-120 +2.90  pr30-w50-120 +2.95  pr30-w50-hard-120 +2.87  pr50-w00-120 +2.92  pr50-w50-120 +2.89  pr50-w50-lp05-120 +2.79
+  noise 0.40      bicubic  15.65   loss-lp05-120 +5.31  loss-lp15-120 +5.17  loss-ss30-120 +5.34  lp02-120 +5.39  pr30-w00-120 +4.03  pr30-w100-120 +5.51  pr30-w50-120 +5.45  pr30-w50-hard-120 +5.34  pr50-w00-120 +4.24  pr50-w50-120 +5.42  pr50-w50-lp05-120 +5.31
+  blur 0.4        bicubic  19.79   loss-lp05-120 +2.78  loss-lp15-120 +2.64  loss-ss30-120 +2.81  lp02-120 +2.85  pr30-w00-120 +2.94  pr30-w100-120 +2.86  pr30-w50-120 +2.90  pr30-w50-hard-120 +2.82  pr50-w00-120 +2.87  pr50-w50-120 +2.84  pr50-w50-lp05-120 +2.75
+  blur 0.8        bicubic  19.63   loss-lp05-120 +2.61  loss-lp15-120 +2.49  loss-ss30-120 +2.68  lp02-120 +2.68  pr30-w00-120 +2.77  pr30-w100-120 +2.71  pr30-w50-120 +2.74  pr30-w50-hard-120 +2.66  pr50-w00-120 +2.70  pr50-w50-120 +2.69  pr50-w50-lp05-120 +2.58
+  blur 1.2        bicubic  19.29   loss-lp05-120 +2.53  loss-lp15-120 +2.42  loss-ss30-120 +2.62  lp02-120 +2.59  pr30-w00-120 +2.68  pr30-w100-120 +2.65  pr30-w50-120 +2.66  pr30-w50-hard-120 +2.59  pr50-w00-120 +2.62  pr50-w50-120 +2.62  pr50-w50-lp05-120 +2.50
+  soft kernel     bicubic  19.72   loss-lp05-120 +2.83  loss-lp15-120 +2.70  loss-ss30-120 +2.86  lp02-120 +2.91  pr30-w00-120 +2.99  pr30-w100-120 +2.91  pr30-w50-120 +2.96  pr30-w50-hard-120 +2.87  pr50-w00-120 +2.92  pr50-w50-120 +2.90  pr50-w50-lp05-120 +2.80
+  content coarse  bicubic  21.22   loss-lp05-120 +4.66  loss-lp15-120 +4.43  loss-ss30-120 +4.81  lp02-120 +4.77  pr30-w00-120 +4.97  pr30-w100-120 +4.76  pr30-w50-120 +4.89  pr30-w50-hard-120 +4.61  pr50-w00-120 +4.84  pr50-w50-120 +4.74  pr50-w50-lp05-120 +4.57
+  content fine    bicubic  19.19   loss-lp05-120 +2.30  loss-lp15-120 +2.19  loss-ss30-120 +2.24  lp02-120 +2.36  pr30-w00-120 +2.44  pr30-w100-120 +2.34  pr30-w50-120 +2.39  pr30-w50-hard-120 +2.35  pr50-w00-120 +2.35  pr50-w50-120 +2.31  pr50-w50-lp05-120 +2.28
+
+========================================================================================================================================================
+axis              bicubicloss-lp05-120loss-lp15-120loss-ss30-120    lp02-120pr30-w00-120pr30-w100-120pr30-w50-120pr30-w50-hard-120pr50-w00-120pr50-w50-120pr50-w50-lp05-120
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+noise 0.05          22.97       +1.07       +1.00       +1.13       +1.13       +1.19       +1.14       +1.17       +1.08       +1.15       +1.14       +1.06
+noise 0.19          19.77       +2.83       +2.69       +2.86       +2.90       +2.99       +2.90       +2.95       +2.87       +2.92       +2.89       +2.79
+noise 0.40          15.65       +5.31       +5.17       +5.34       +5.39       +4.03       +5.51       +5.45       +5.34       +4.24       +5.42       +5.31
+blur 0.4            19.79       +2.78       +2.64       +2.81       +2.85       +2.94       +2.86       +2.90       +2.82       +2.87       +2.84       +2.75
+blur 0.8            19.63       +2.61       +2.49       +2.68       +2.68       +2.77       +2.71       +2.74       +2.66       +2.70       +2.69       +2.58
+blur 1.2            19.29       +2.53       +2.42       +2.62       +2.59       +2.68       +2.65       +2.66       +2.59       +2.62       +2.62       +2.50
+soft kernel         19.72       +2.83       +2.70       +2.86       +2.91       +2.99       +2.91       +2.96       +2.87       +2.92       +2.90       +2.80
+content coarse      21.22       +4.66       +4.43       +4.81       +4.77       +4.97       +4.76       +4.89       +4.61       +4.84       +4.74       +4.57
+content fine        19.19       +2.30       +2.19       +2.24       +2.36       +2.44       +2.34       +2.39       +2.35       +2.35       +2.31       +2.28
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+MEAN gain                       +2.99       +2.86       +3.04       +3.06       +3.00       +3.09       +3.12       +3.02       +2.96       +3.06       +2.96
+WORST axis                      +1.07       +1.00       +1.13       +1.13       +1.19       +1.14       +1.17       +1.08       +1.15       +1.14       +1.06
+========================================================================================================================================================
+
+best mean gain across axes: pr30-w50-120
+best worst-case axis:       pr30-w00-120  -- differs from best mean; the worst case is what the OOD half punishes
+
+=== 4. noise sweeps ===
+--- loss-lp05-120
+60 images · sigma_add=0.0449 · checkpoint runs/loss-lp05-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.56   +0.82   0.5860   0.2299   OUT OF RANGE
+      0.10     21.76    23.15   +1.39   0.5616   0.2400   yes
+      0.15     20.56    22.61   +2.05   0.5325   0.2505   yes   <- KLA's real level
+      0.19     19.58    22.12   +2.54   0.5064   0.2631   yes
+      0.25     18.19    21.54   +3.35   0.4675   0.2875   yes
+      0.30     17.14    21.20   +4.06   0.4397   0.3059   OUT OF RANGE
+      0.35     16.18    20.89   +4.71   0.4155   0.3244   OUT OF RANGE
+      0.40     15.31    20.64   +5.33   0.3949   0.3400   OUT OF RANGE
+      0.45     14.53    20.44   +5.91   0.3778   0.3533   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_loss-lp05-120.csv
+--- loss-lp15-120
+60 images · sigma_add=0.0449 · checkpoint runs/loss-lp15-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.48   +0.74   0.5818   0.2061   OUT OF RANGE
+      0.10     21.76    23.06   +1.30   0.5570   0.2173   yes
+      0.15     20.56    22.50   +1.94   0.5270   0.2299   yes   <- KLA's real level
+      0.19     19.58    21.99   +2.41   0.4998   0.2457   yes
+      0.25     18.19    21.40   +3.20   0.4601   0.2736   yes
+      0.30     17.14    21.06   +3.92   0.4323   0.2934   OUT OF RANGE
+      0.35     16.18    20.76   +4.58   0.4082   0.3112   OUT OF RANGE
+      0.40     15.31    20.51   +5.20   0.3876   0.3268   OUT OF RANGE
+      0.45     14.53    20.29   +5.76   0.3704   0.3392   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_loss-lp15-120.csv
+--- loss-ss30-120
+60 images · sigma_add=0.0449 · checkpoint runs/loss-ss30-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.57   +0.83   0.5931   0.4575   OUT OF RANGE
+      0.10     21.76    23.15   +1.39   0.5698   0.4500   yes
+      0.15     20.56    22.59   +2.03   0.5418   0.4382   yes   <- KLA's real level
+      0.19     19.58    22.09   +2.50   0.5169   0.4327   yes
+      0.25     18.19    21.51   +3.32   0.4781   0.4567   yes
+      0.30     17.14    21.20   +4.06   0.4510   0.4862   OUT OF RANGE
+      0.35     16.18    20.87   +4.69   0.4273   0.5103   OUT OF RANGE
+      0.40     15.31    20.61   +5.30   0.4069   0.5299   OUT OF RANGE
+      0.45     14.53    20.41   +5.88   0.3899   0.5458   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_loss-ss30-120.csv
+--- lp02-120
+60 images · sigma_add=0.0449 · checkpoint runs/lp02-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.61   +0.87   0.5874   0.2644   OUT OF RANGE
+      0.10     21.76    23.21   +1.44   0.5632   0.2708   yes
+      0.15     20.56    22.67   +2.11   0.5348   0.2773   yes   <- KLA's real level
+      0.19     19.58    22.20   +2.61   0.5099   0.2856   yes
+      0.25     18.19    21.65   +3.46   0.4712   0.3066   yes
+      0.30     17.14    21.31   +4.17   0.4437   0.3250   OUT OF RANGE
+      0.35     16.18    20.98   +4.81   0.4199   0.3433   OUT OF RANGE
+      0.40     15.31    20.73   +5.41   0.3992   0.3593   OUT OF RANGE
+      0.45     14.53    20.53   +6.00   0.3819   0.3730   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_lp02-120.csv
+--- pr30-w00-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr30-w00-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.72   +0.98   0.5833   0.4570   OUT OF RANGE
+      0.10     21.76    23.29   +1.53   0.5651   0.4426   yes
+      0.15     20.56    22.74   +2.18   0.5384   0.4320   yes   <- KLA's real level
+      0.19     19.58    22.30   +2.72   0.5137   0.4328   yes
+      0.25     18.19    21.78   +3.58   0.4749   0.4582   yes
+      0.30     17.14    21.41   +4.27   0.4484   0.4771   OUT OF RANGE
+      0.35     16.18    20.87   +4.69   0.4260   0.4832   OUT OF RANGE
+      0.40     15.31    19.34   +4.03   0.3828   0.4948   OUT OF RANGE
+      0.45     14.53    16.89   +2.36   0.3080   0.4965   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr30-w00-120.csv
+--- pr30-w100-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr30-w100-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.59   +0.85   0.5893   0.4532   OUT OF RANGE
+      0.10     21.76    23.21   +1.45   0.5644   0.4531   yes
+      0.15     20.56    22.69   +2.13   0.5369   0.4443   yes   <- KLA's real level
+      0.19     19.58    22.19   +2.61   0.5137   0.4331   yes
+      0.25     18.19    21.59   +3.40   0.4742   0.4580   yes
+      0.30     17.14    21.39   +4.25   0.4455   0.4988   OUT OF RANGE
+      0.35     16.18    21.15   +4.97   0.4218   0.5258   OUT OF RANGE
+      0.40     15.31    20.89   +5.58   0.4024   0.5419   OUT OF RANGE
+      0.45     14.53    20.66   +6.13   0.3862   0.5530   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr30-w100-120.csv
+--- pr30-w50-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr30-w50-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.65   +0.90   0.5883   0.4535   OUT OF RANGE
+      0.10     21.76    23.25   +1.49   0.5652   0.4489   yes
+      0.15     20.56    22.71   +2.15   0.5380   0.4377   yes   <- KLA's real level
+      0.19     19.58    22.24   +2.66   0.5140   0.4327   yes
+      0.25     18.19    21.69   +3.50   0.4756   0.4561   yes
+      0.30     17.14    21.37   +4.23   0.4480   0.4844   OUT OF RANGE
+      0.35     16.18    21.05   +4.87   0.4243   0.5072   OUT OF RANGE
+      0.40     15.31    20.80   +5.49   0.4037   0.5272   OUT OF RANGE
+      0.45     14.53    20.61   +6.08   0.3864   0.5438   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr30-w50-120.csv
+--- pr30-w50-hard-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr30-w50-hard-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.54   +0.79   0.5910   0.4521   OUT OF RANGE
+      0.10     21.76    23.16   +1.40   0.5672   0.4423   yes
+      0.15     20.56    22.65   +2.09   0.5383   0.4281   yes   <- KLA's real level
+      0.19     19.58    22.19   +2.61   0.5129   0.4210   yes
+      0.25     18.19    21.66   +3.47   0.4745   0.4418   yes
+      0.30     17.14    21.31   +4.18   0.4472   0.4678   OUT OF RANGE
+      0.35     16.18    20.99   +4.81   0.4233   0.4906   OUT OF RANGE
+      0.40     15.31    20.74   +5.43   0.4026   0.5103   OUT OF RANGE
+      0.45     14.53    20.54   +6.01   0.3854   0.5250   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr30-w50-hard-120.csv
+--- pr50-w00-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr50-w00-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.70   +0.96   0.5771   0.4696   OUT OF RANGE
+      0.10     21.76    23.27   +1.51   0.5616   0.4498   yes
+      0.15     20.56    22.69   +2.13   0.5378   0.4309   yes   <- KLA's real level
+      0.19     19.58    22.21   +2.63   0.5137   0.4278   yes
+      0.25     18.19    21.71   +3.51   0.4737   0.4583   yes
+      0.30     17.14    21.40   +4.26   0.4463   0.4826   OUT OF RANGE
+      0.35     16.18    20.88   +4.71   0.4248   0.4900   OUT OF RANGE
+      0.40     15.31    19.49   +4.18   0.3856   0.4967   OUT OF RANGE
+      0.45     14.53    17.27   +2.74   0.3187   0.4941   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr50-w00-120.csv
+--- pr50-w50-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr50-w50-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.63   +0.89   0.5848   0.4695   OUT OF RANGE
+      0.10     21.76    23.22   +1.46   0.5633   0.4577   yes
+      0.15     20.56    22.67   +2.11   0.5372   0.4390   yes   <- KLA's real level
+      0.19     19.58    22.17   +2.59   0.5135   0.4295   yes
+      0.25     18.19    21.60   +3.41   0.4750   0.4526   yes
+      0.30     17.14    21.27   +4.14   0.4479   0.4845   OUT OF RANGE
+      0.35     16.18    20.96   +4.79   0.4239   0.5114   OUT OF RANGE
+      0.40     15.31    20.74   +5.43   0.4032   0.5332   OUT OF RANGE
+      0.45     14.53    20.56   +6.03   0.3859   0.5490   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr50-w50-120.csv
+--- pr50-w50-lp05-120
+60 images · sigma_add=0.0449 · checkpoint runs/pr50-w50-lp05-120/last.pt
+
+ sigma_mul   bicubic    model    gain     SSIM    LPIPS   in training range?
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+      0.05     22.74    23.58   +0.84   0.5820   0.2368   OUT OF RANGE
+      0.10     21.76    23.16   +1.40   0.5590   0.2462   yes
+      0.15     20.56    22.60   +2.04   0.5311   0.2541   yes   <- KLA's real level
+      0.19     19.58    22.10   +2.51   0.5051   0.2647   yes
+      0.25     18.19    21.51   +3.32   0.4657   0.2882   yes
+      0.30     17.14    21.18   +4.04   0.4377   0.3068   OUT OF RANGE
+      0.35     16.18    20.88   +4.70   0.4134   0.3245   OUT OF RANGE
+      0.40     15.31    20.64   +5.32   0.3927   0.3400   OUT OF RANGE
+      0.45     14.53    20.44   +5.91   0.3756   0.3531   OUT OF RANGE
+
+written to /workspace/forgex-kla-ps01/noise_sweep_pr50-w50-lp05-120.csv

@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""OFFLINE: export the FULL ForgeX graph to ONNX and build a TensorRT engine.
+
+Measured motivation: the TRT stack starts in 0.52 s against PyTorch's 1.71 s.
+On a 2.69 s scored run that is ~44% before any inference speedup, because
+framework startup is 54% of the run and the model itself is only 4.7%.
+
+FULL graph, not trunk-only. The scored process must not import torch at all, so
+the bicubic skip and the final FP32 addition have to live inside the engine:
+
+    stem: Clip -> Sqrt / Log(1+x) -> Concat
+    head Conv3x3 -> 16 x [Conv -> ReLU -> Conv -> 0.1x -> Add] -> long skip
+    body_tail Conv -> Conv(64->256) -> DepthToSpace(2)  [= PixelShuffle]
+    tail Conv -> Add( Resize(cubic, 2x, FP32) )         [= global bicubic skip]
+
+The Resize and the final Add are pinned to FP32 with layer precision
+constraints, preserving the standing requirement that the bicubic + residual
+addition is FP32. Everything else may run FP16.
+
+Nothing here runs during the scored invocation. Build once, ship the .plan.
+
+    python tools/trt_native.py export
+    python tools/trt_native.py build --precision fp16
+"""
+import argparse, json, os, sys, time
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, HERE)
+
+
+def cmd_export(a):
+    import torch
+    import run as R
+    ck = R.load_checkpoint(R.find_weights(None))
+    m = R.Restorer(**(ck.get("config", {}) or {})).eval()
+    m.load_state_dict(ck.get("state_dict", ck))
+    m = m.cuda()
+    out = os.path.join(HERE, "models", "forgex_full.onnx")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    dummy = torch.randn(a.opt, 1, a.hw, a.hw, device="cuda")
+    with torch.no_grad():
+        torch.onnx.export(
+            m, dummy, out, input_names=["lr"], output_names=["sr"],
+            dynamic_axes={"lr": {0: "batch"}, "sr": {0: "batch"}},
+            opset_version=17, do_constant_folding=True)
+    print(f"  exported {out}  ({os.path.getsize(out)/1e6:.2f} MB)")
+    # reference output for later bit-comparison
+    with torch.no_grad():
+        ref = m(dummy).float().cpu().numpy()
+    import numpy as np
+    np.save(os.path.join(HERE, "models", "onnx_ref_out.npy"), ref)
+    np.save(os.path.join(HERE, "models", "onnx_ref_in.npy"), dummy.cpu().numpy())
+    print(f"  saved reference in/out for verification")
+
+
+def cmd_build(a):
+    import tensorrt as trt
+    onnx = os.path.join(HERE, "models", "forgex_full.onnx")
+    if not os.path.isfile(onnx):
+        sys.exit("run `export` first")
+    LOG = trt.Logger(trt.Logger.WARNING)
+    builder = trt.Builder(LOG)
+    net = builder.create_network(
+        1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
+    parser = trt.OnnxParser(net, LOG)
+    with open(onnx, "rb") as f:
+        if not parser.parse(f.read()):
+            for i in range(parser.num_errors):
+                print("  ONNX parse error:", parser.get_error(i))
+            sys.exit("parse failed")
+    print(f"  parsed: {net.num_layers} layers, "
+          f"{net.num_inputs} in, {net.num_outputs} out")
+
+    cfg = builder.create_builder_config()
+    try:
+        cfg.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, a.workspace << 30)
+    except AttributeError:
+        cfg.max_workspace_size = a.workspace << 30
+    if a.precision == "fp16":
+        cfg.set_flag(trt.BuilderFlag.FP16)
+        # Pin the bicubic Resize and the final Add to FP32: small corrections
+        # vanish at fp16 spacing near 0.5 (~5e-4).
+        pinned = 0
+        for i in range(net.num_layers):
+            l = net.get_layer(i)
+            if l.type in (trt.LayerType.RESIZE,) or \
+               (l.type == trt.LayerType.ELEMENTWISE and i >= net.num_layers - 3):
+                try:
+                    l.precision = trt.float32
+                    l.set_output_type(0, trt.float32)
+                    pinned += 1
+                except Exception:
+                    pass
+        cfg.set_flag(trt.BuilderFlag.PREFER_PRECISION_CONSTRAINTS)
+        print(f"  pinned {pinned} layer(s) to FP32 (bicubic Resize + final Add)")
+
+    p = builder.create_optimization_profile()
+    p.set_shape("lr", (a.min, 1, a.hw, a.hw), (a.opt, 1, a.hw, a.hw),
+                (a.max, 1, a.hw, a.hw))
+    cfg.add_optimization_profile(p)
+
+    t0 = time.perf_counter()
+    plan = builder.build_serialized_network(net, cfg)
+    if plan is None:
+        sys.exit("engine build returned None")
+    dt = time.perf_counter() - t0
+    out = os.path.join(HERE, "models", f"forgex_{a.precision}.plan")
+    with open(out, "wb") as f:
+        f.write(plan)
+    import torch
+    meta = dict(precision=a.precision, hw=a.hw, batch_min=a.min, batch_opt=a.opt,
+                batch_max=a.max, trt=trt.__version__,
+                gpu=torch.cuda.get_device_name(0),
+                sm=f"{torch.cuda.get_device_properties(0).major}"
+                   f"{torch.cuda.get_device_properties(0).minor}",
+                build_seconds=round(dt, 1), bytes=os.path.getsize(out),
+                full_graph=True)
+    json.dump(meta, open(out + ".json", "w"), indent=2)
+    print(f"  built in {dt:.1f} s -> {out} ({os.path.getsize(out)/1e6:.2f} MB)")
+    print(f"  VALID ONLY for sm_{meta['sm']} + TRT {meta['trt']}")
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest="c", required=True)
+    e = sub.add_parser("export"); e.add_argument("--hw", type=int, default=128)
+    e.add_argument("--opt", type=int, default=32); e.set_defaults(fn=cmd_export)
+    b = sub.add_parser("build")
+    b.add_argument("--precision", default="fp16", choices=["fp16", "fp32"])
+    b.add_argument("--hw", type=int, default=128)
+    b.add_argument("--min", type=int, default=1)
+    b.add_argument("--opt", type=int, default=32)
+    b.add_argument("--max", type=int, default=128)
+    b.add_argument("--workspace", type=int, default=8)
+    b.set_defaults(fn=cmd_build)
+    a = ap.parse_args(); a.fn(a)

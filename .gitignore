@@ -1,0 +1,43 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.venv/
+venv/
+
+# editing backups -- working files, never part of the submission
+*.bak
+*.bak[0-9]
+
+# never commit data or checkpoints -- the repo becomes unusable
+data/
+runs/
+*.npy
+*.pt
+*.pth
+*.onnx
+preview*.png
+testin/
+testout*/
+
+# ...except the single model we submit
+!models/model.pt
+
+# KLA repo requirement: the restored test outputs MUST be committed
+!outputs/*.npy
+!outputs/*.png
+!outputs/*.tif
+
+# TensorRT engines are compiled machine code: ~99 MB, locked to one GPU family,
+# one TensorRT version AND one checkpoint sha1. They are a BUILD ARTEFACT, not
+# source -- `python tools/trt_native.py all --depths 3,6,10,13,16 --portable`
+# regenerates every one of them from models/model.pt in about 145 seconds.
+# The metadata (index.json, *.plan.json) IS committed, so the shipped engine set
+# is described in git even where the binaries are not.
+models/engines/*.plan
+models/engines/*.onnx
+models/engines/*.ref_in.npy
+models/engines/*.ref_out.npy
+
+# session scratch, superseded working files
+_archive/

@@ -1,0 +1,42 @@
+9 axes x 40 images, device=cuda
+
+  noise 0.05      bicubic  23.09   models +1.07  r2-preal1 +1.01
+  noise 0.19      bicubic  19.79   models +2.91  r2-preal1 +2.66
+  noise 0.40      bicubic  15.54   models +5.60  r2-preal1 +2.09
+  blur 0.4        bicubic  19.82   models +2.86  r2-preal1 +2.64
+  blur 0.8        bicubic  19.70   models +2.70  r2-preal1 +2.57
+  blur 1.2        bicubic  19.44   models +2.65  r2-preal1 +2.56
+  soft kernel     bicubic  19.74   models +2.92  r2-preal1 +2.66
+.\.venv\Scripts\python.exe : C:\Users\abishek sr\Desktop\kla\kla-restore\.venv\Lib\site-packages\numpy\_core\fromnumeric.py:3824: RuntimeWarning: Mean of 
+empty slice
+At line:1 char:1
++ .\.venv\Scripts\python.exe tools\ood_suite.py --data ..\semicon_test_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\abishe... of empty slice:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  return _methods._mean(a, axis=axis, dtype=dtype,
+C:\Users\abishek sr\Desktop\kla\kla-restore\.venv\Lib\site-packages\numpy\_core\_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+  content coarse  bicubic    nan   models +nan  r2-preal1 +nan
+  content fine    bicubic  19.79   models +2.91  r2-preal1 +2.66
+
+============================================
+axis              bicubic      models   r2-preal1
+--------------------------------------------
+noise 0.05          23.09       +1.07       +1.01
+noise 0.19          19.79       +2.91       +2.66
+noise 0.40          15.54       +5.60       +2.09
+blur 0.4            19.82       +2.86       +2.64
+blur 0.8            19.70       +2.70       +2.57
+blur 1.2            19.44       +2.65       +2.56
+soft kernel         19.74       +2.92       +2.66
+content coarse        nan        +nan        +nan
+content fine        19.79       +2.91       +2.66
+--------------------------------------------
+MEAN gain                        +nan        +nan
+WORST axis                      +1.07       +1.01
+============================================
+
+best mean gain across axes: models
+best worst-case axis:       models  (same model -- unambiguous)

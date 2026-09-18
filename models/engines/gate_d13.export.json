@@ -1,0 +1,8 @@
+{
+  "arch": "e1f_gate",
+  "depth": 13,
+  "nb_full": 16,
+  "weights": "model.pt",
+  "weights_sha1": "61587e96f554f32d7538651664b58e4dfe02f2ac",
+  "params": 1118036
+}

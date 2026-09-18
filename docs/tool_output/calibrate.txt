@@ -1,0 +1,6 @@
+KLA real pairs     sigma_add 0.0414 [0.000-0.085]   sigma_mul 0.1863 [0.139-0.238]   (n=58)
+ours (OBSERVED)    sigma_add 0.0415 [0.000-0.080]   sigma_mul 0.1986 [0.146-0.251]   (n=58)
+ours (TRAIN)       sigma_add 0.0507 [0.000-0.097]   sigma_mul 0.2192 [0.117-0.342]   (n=58)
+
+If 'ours (OBSERVED)' brackets 'KLA real pairs', the degradation model is faithful.
+'ours (TRAIN)' should be WIDER on purpose -- that is what buys out-of-distribution robustness.

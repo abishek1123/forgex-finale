@@ -1,0 +1,39 @@
+
+  timing from 7 of 9 reps per cell (first 2 discarded as warmup)
+  depth  backend  served      t_med(s)    t_mad    t_std   t_cold    img/s      PSNR     SSIM     LPIPS
+  3      trt      TensorRT       1.513    0.036    0.024    1.627    196.3   22.7333  0.50011   0.44905
+  3      torch    PyTorch        2.364    0.052    0.073    2.270    125.6   22.7333  0.50011   0.44905
+  6      trt      TensorRT       1.614    0.029    0.342    1.577    184.0   22.9747  0.51318   0.41995
+  6      torch    PyTorch        2.332    0.030    0.043    2.282    127.3   22.9746  0.51318   0.41994
+  10     trt      TensorRT       1.801    0.025    0.167    1.761    164.9   23.2870  0.53613   0.34910
+  10     torch    PyTorch        2.414    0.068    0.218    2.459    123.0   23.2870  0.53613   0.34910
+  13     trt      TensorRT       1.916    0.034    0.040    1.925    155.0   23.5804  0.56550   0.27304
+  13     torch    PyTorch        2.469    0.043    0.072    2.784    120.3   23.5803  0.56549   0.27304
+  16     trt      TensorRT       2.046    0.032    0.045    2.836    145.2   23.8296  0.62104   0.17935
+  16     torch    PyTorch        2.586    0.063    0.184    2.698    114.9   23.8297  0.62103   0.17935
+  t_mad = robust 1-sigma (1.4826 x MAD). t_std is kept for transparency;
+  where the two disagree, one rep in the cell stalled on I/O.
+
+  depth           trt       torch   speedup       dPSNR
+  3             1.513       2.364     1.56x      0.0000
+  6             1.614       2.332     1.45x      0.0001
+  10            1.801       2.414     1.34x      0.0000
+  13            1.916       2.469     1.29x      0.0001
+  16            2.046       2.586     1.26x     -0.0001
+
+  trt: knob span 0.533 s, worst robust sigma 0.036 s -> RESOLVABLE (15x)
+     adjacent stops (difference of medians vs pooled SE of the medians):
+       d3   -> d6     +0.101 s  +/- 0.022  =    4.6 sigma  OK
+       d6   -> d10    +0.187 s  +/- 0.018  =   10.2 sigma  OK
+       d10  -> d13    +0.115 s  +/- 0.020  =    5.7 sigma  OK
+       d13  -> d16    +0.130 s  +/- 0.022  =    5.8 sigma  OK
+     -> every published stop is distinguishable (worst 4.6 sigma)
+
+  torch: knob span 0.222 s, worst robust sigma 0.068 s -> RESOLVABLE (3x)
+     adjacent stops (difference of medians vs pooled SE of the medians):
+       d3   -> d6     -0.032 s  +/- 0.029  =   -1.1 sigma  INVERTED
+       d6   -> d10    +0.082 s  +/- 0.035  =    2.3 sigma  too close
+       d10  -> d13    +0.055 s  +/- 0.038  =    1.5 sigma  too close
+       d13  -> d16    +0.116 s  +/- 0.036  =    3.2 sigma  OK
+     -> some stops are not separable; drop or re-space them
+  end-to-end range 1.513 s (trt d3) .. 2.586 s (torch d16)  = 1.71x

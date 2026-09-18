@@ -1,0 +1,54 @@
+Matched-parameter architecture comparison
+=========================================
+17 Sep 2026 · RTX 4090 · 40 epochs · 1,000-image subset of semicon_train_data
+All eight architectures at ~1,368,705 parameters (+/- 2%).
+
+Identical for every row: data, train/val split, degradation engine and mixture
+(--p-real 0.5 --wide-p 0.5), loss (--w-lpips 0.05), optimiser, LR schedule,
+epochs, batch, --seed 0, --split-seed 0.  src/train.py was not edited or forked;
+tools/train_arch.py rebinds the single name `Restorer`.  Architecture is the only
+variable.
+
+Each score is the MEAN OF THE LAST 5 EPOCHS, not the final epoch -- adjacent
+epochs in this pipeline swing by up to 0.25 dB (see runs/r2-long120/log.csv).
+
+arch          PSNR      dPSNR    SSIM       dSSIM     s/epoch   rel cost
+---------------------------------------------------------------------------
+swinir        22.2083   +0.0942  0.55323    +0.0256   364       3.91x
+restormer     22.1884   +0.0743  0.55388    +0.0262   189       2.03x
+nafnet        22.1406   +0.0265  0.54204    +0.0144    85       0.91x
+forgex        22.1141        --  0.52764        --     93       1.00x
+abl_nostem    22.1095   -0.0046  0.52700    -0.0006    93       1.00x
+edsr_base     22.1021   -0.0120  0.52616    -0.0015    91       0.98x
+abl_noskip    22.0941   -0.0200  0.52860    +0.0010    93       1.00x
+unet          22.0872   -0.0269  0.53084    +0.0032    80       0.86x
+
+THE 2x2 ABLATION -- NULL RESULT
+  forgex      stem + skip     22.1141
+  abl_nostem  skip only       22.1095    stem effect  +0.0046 dB
+  abl_noskip  stem only       22.0941    skip effect  +0.0200 dB
+  edsr_base   neither         22.1021    both vs none +0.0120 dB
+  spread across all four:     0.0200 dB
+
+  Neither component is measurable at this scale.  Both were designed for training
+  stability and early convergence, which is invisible by epoch 40, and validation
+  is in-distribution so a robustness benefit cannot show here.  Do NOT quote a dB
+  figure for the stem or the skip.
+
+READING IT
+  * Transformers win on SSIM, not PSNR.  +0.026 SSIM exceeds the spread across our
+    entire 11-checkpoint field (0.0249), so it is a real effect.  Cost is 2-4x.
+  * NAFNet is strictly better than us at equal cost: +0.027 dB, +0.014 SSIM, 9%
+    faster.  No trade-off to point at.
+  * The whole table spans 0.12 dB.  Widening the training degradation family
+    (--wide-p 0.0 -> 0.5) is worth 3.72 dB at sigma_mul 0.45.  Architecture is
+    second-order and now measured to be so.
+
+CAVEATS -- state these whenever the table is shown
+  * Single seed.  The four EDSR-family rows differ by under 0.02 dB and would
+    reorder on another seed.  The transformer gap is large enough to survive.
+  * 40 epochs, 1,000 images.  Absolute values are far below the shipped model's
+    23.632 dB for that reason; only the gaps between rows are meaningful.
+  * Synthetic degradations are re-rolled per run (os.getpid() seeds the worker
+    RNG), so runs are same-distribution but not same-draws.
+  * Cost is seconds per training epoch, used as a proxy for inference cost.

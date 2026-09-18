@@ -1,0 +1,13 @@
+100 held-out images, band above 0.50x Nyquist, device=cuda
+
+model                  HF(out)    HF(gt)  aggregate   median    >1   verdict
+--------------------------------------------------------------------------------------
+bicubic (floor)         0.0892    0.2382      0.375    0.431    14   safe -- conservative, under-draws
+models                  0.0956    0.2382      0.402    0.330     0   safe -- conservative, under-draws
+r2-preal1               0.0743    0.2382      0.312    0.253     0   safe -- conservative, under-draws
+
+aggregate > 1 means the model puts MORE energy above the LR Nyquist than
+the ground truth contains -- detail it made up. Under 1 means it draws less
+fine structure than truly exists, which is the safe direction for inspection.
+'>1' counts individual images over the line; a handful on very smooth images
+is ringing, not fabrication.

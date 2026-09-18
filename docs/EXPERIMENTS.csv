@@ -1,0 +1,2 @@
+id,owner,hypothesis,change,train_min,psnr,ssim,lpips,ms_per_img,gpu_gb,visual,decision,git_sha,notes
+E0,,baseline unchanged is the number everything else must beat,none,0,,,,,,,,,"run this FIRST, before any change"

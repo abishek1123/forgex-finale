@@ -1,0 +1,20 @@
+400 images, 6,553,600 low-res pixels
+288 usable bins (>=200 px each), 6,553,600 pixels used
+
+model                                                    R2   adj R2         BIC
+--------------------------------------------------------------------------------
+M1  a + b*m^2 + c*v          (shipped: speckle)      0.9987   0.9987     -1814.5
+M2  a + p*m   + c*v          (Poisson / shot)        0.9374   0.9370      -696.2
+M3  a + p*m + b*m^2 + c*v    (both)                  0.9989   0.9989     -1849.5
+M4  a + c*v                  (null: no signal)       0.1837   0.1808        37.7
+
+lowest BIC (best model): M3  a + p*m + b*m^2 + c*v    (both)
+
+coefficients:
+  M1  a + b*m^2 + c*v          (shipped: speckle) [0.00004 0.03649 0.45944]
+  M2  a + p*m   + c*v          (Poisson / shot)  [-0.00624  0.03406  0.39979]
+  M3  a + p*m + b*m^2 + c*v    (both)            [ 0.00043 -0.00196  0.03844  0.46318]
+  M4  a + c*v                  (null: no signal) [0.00852 0.53596]
+
+speckle (m^2) vs Poisson (m):  adj R2 0.9987 vs 0.9370   BIC -1814.5 vs -696.2
+A BIC difference above 10 is decisive; below 2 is 'no preference'.

@@ -1,0 +1,73 @@
+test set: 297 GT / 297 NoisyLR
+scoring 11 checkpoints on ALL images
+=== loss-lp05-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.608   0.6037   0.1975     1.91
+bicubic      20.455   0.5099   0.4655     0.00
+=== loss-lp15-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.479   0.5947   0.1867     2.13
+bicubic      20.455   0.5099   0.4655     0.00
+=== loss-ss30-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.634   0.6156   0.3695     2.10
+bicubic      20.455   0.5099   0.4655     0.00
+=== lp02-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.685   0.6070   0.2201     1.94
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr30-w00-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.757   0.6134   0.3677     1.95
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr30-w100-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.740   0.6107   0.3748     1.98
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr30-w50-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.744   0.6122   0.3676     2.01
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr30-w50-hard-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.639   0.6113   0.3398     1.97
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr50-w00-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.755   0.6195   0.3533     1.91
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr50-w50-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.763   0.6191   0.3552     2.16
+bicubic      20.455   0.5099   0.4655     0.00
+=== pr50-w50-lp05-120
+what           PSNR     SSIM    LPIPS   ms/img
+model        23.632   0.6079   0.1929     2.17
+bicubic      20.455   0.5099   0.4655     0.00
+
+=========== RANKED ON THE ORGANISERS TEST SET ===========
+run                             PSNR     SSIM    LPIPS
+-- by PSNR --
+pr50-w50-120                 23.7626  0.61915  0.35518
+pr30-w00-120                 23.7567  0.61343  0.36773
+pr50-w00-120                 23.7546  0.61954  0.35333
+pr30-w50-120                 23.7435  0.61221  0.36763
+pr30-w100-120                23.7403  0.61074  0.37485
+lp02-120                     23.6846  0.60700  0.22007
+pr30-w50-hard-120            23.6386  0.61129  0.33984
+loss-ss30-120                23.6339  0.61563  0.36949
+pr50-w50-lp05-120            23.6320  0.60791  0.19288
+loss-lp05-120                23.6080  0.60369  0.19750
+loss-lp15-120                23.4786  0.59467  0.18668
+-- by LPIPS --
+loss-lp15-120                23.4786  0.59467  0.18668
+pr50-w50-lp05-120            23.6320  0.60791  0.19288
+loss-lp05-120                23.6080  0.60369  0.19750
+lp02-120                     23.6846  0.60700  0.22007
+pr30-w50-hard-120            23.6386  0.61129  0.33984
+pr50-w00-120                 23.7546  0.61954  0.35333
+pr50-w50-120                 23.7626  0.61915  0.35518
+pr30-w50-120                 23.7435  0.61221  0.36763
+pr30-w00-120                 23.7567  0.61343  0.36773
+loss-ss30-120                23.6339  0.61563  0.36949
+pr30-w100-120                23.7403  0.61074  0.37485

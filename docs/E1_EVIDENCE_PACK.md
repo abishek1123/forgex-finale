@@ -2,9 +2,9 @@
 
 > **Historical / superseded — not the shipped model.** This document describes `pr50-w50-lp05-120` (1,368,705 params; 23.632 PSNR / 0.60791 SSIM / 0.19288 LPIPS), the model shipped at **Round 2**.
 >
-> The Grand Finale ships **`e1f_gate-120`** — 1,346,360 params, **23.8297 PSNR / 0.62104 SSIM / 0.18126 LPIPS**, `models/model.pt` sha1 `f95377a21e86…`. Numbers below are kept as the record of how that decision was reached, not as a description of what ships.
+> This is a historical record. The current shared-head release is documented in [RELEASE_STATUS.md](RELEASE_STATUS.md).
 >
-> Current: [`SHIP_E1F_GATE.md`](SHIP_E1F_GATE.md)
+> Current: [RELEASE_STATUS.md](RELEASE_STATUS.md)
 
 
 **Date:** 18 September 2026 · **Scope:** files on disk only. Prior notes treated as hypotheses.

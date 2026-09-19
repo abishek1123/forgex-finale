@@ -1,65 +1,20 @@
 #!/usr/bin/env bash
-# ForgeX one-command setup (Linux / macOS / RunPod pod).
-#
-#   git clone https://github.com/abishek1123/forgex-kla-ps01.git
-#   cd forgex-kla-ps01
-#   bash setup.sh
-#
-# Creates .venv, installs dependencies, then runs the laptop check.
-# Safe to re-run.
-set -u
+set -euo pipefail
 cd "$(dirname "$0")"
-
-echo
-echo "  ForgeX setup"
-echo "  ------------------------------------------------------------"
-
-PY=""
-for c in python3.13 python3 python; do
-  if command -v "$c" >/dev/null 2>&1 && "$c" -c 'import sys;sys.exit(sys.version_info[0]!=3)'; then
-    PY="$c"; break
+case "${1:-}" in
+  '') REQ=requirements-inference.txt ;;
+  --cpu) REQ=requirements-cpu.txt ;;
+  --h100) REQ=requirements-h100.txt
+    [ "$(uname -s)" = Linux ] || { echo 'H100 engines require Linux'; exit 1; } ;;
+  *) echo 'Usage: bash setup.sh [--cpu|--h100]'; exit 1 ;;
+esac
+PY=''
+for candidate in python3.12 python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import sys; sys.exit(not ((3,10) <= sys.version_info[:2] < (3,14)))'; then
+    PY="$candidate"; break
   fi
 done
-if [ -z "$PY" ]; then
-  echo "  FAIL: no Python 3 on PATH."; exit 1
-fi
-echo "  python      : $PY ($($PY --version 2>&1))"
-
-if [ -x .venv/bin/python ]; then
-  echo "  venv        : reusing .venv"
-else
-  echo "  venv        : creating .venv ..."
-  "$PY" -m venv .venv || { echo "  FAIL: could not create .venv"; exit 1; }
-fi
-VPY=.venv/bin/python
-
-if command -v nvidia-smi >/dev/null 2>&1; then
-  REQ=requirements.txt;      echo "  gpu         : nvidia-smi found"
-else
-  REQ=requirements-cpu.txt;  echo "  gpu         : none -- installing CPU build"
-fi
-[ -f "$REQ" ] || REQ=requirements.txt
-echo "  installing  : $REQ  (this takes a few minutes)"
-
-"$VPY" -m pip install --upgrade pip --quiet
-if ! "$VPY" -m pip install -r "$REQ" --quiet; then
-  echo
-  echo "  Pinned install failed -- most likely this Python is not 3.13,"
-  echo "  so the exact torch wheel does not exist for it."
-  echo "  Falling back to an unpinned install, enough to run inference."
-  echo
-  "$VPY" -m pip install torch numpy --quiet || {
-    echo "  FAIL: could not install torch. Tell Abishek."; exit 1; }
-  echo "  NOTE: this machine is INFERENCE-ONLY (no training deps)."
-fi
-
-mkdir -p outputs runs
-
-echo
-"$VPY" tools/doctor.py
-code=$?
-
-echo "  From now on, use this python for everything:"
-echo "      ./.venv/bin/python <script>"
-echo
-exit $code
+[ -n "$PY" ] || { echo 'Install Python 3.12'; exit 1; }
+[ -x .venv/bin/python ] || "$PY" -m venv .venv
+.venv/bin/python -m pip install -r "$REQ"
+.venv/bin/python tools/doctor.py

@@ -1,5 +1,7 @@
 # What ships: e1f_gate + five TensorRT engines
 
+> Historical gate release, superseded by the shared-head model. Its checkpoint, TensorRT environment and performance values are not the current deployment. See [current release status](RELEASE_STATUS.md).
+
 Final state, 18 September 2026. Every number below was measured, not estimated;
 where a number replaced an earlier one, the earlier one was wrong and the entry
 says so.

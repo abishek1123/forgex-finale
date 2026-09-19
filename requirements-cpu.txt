@@ -1,39 +1,4 @@
-# CPU-only environment. Same pins as requirements.txt with the CUDA build
-# suffixes removed, for a machine with no NVIDIA GPU or a driver older than
-# CUDA 12.6.
-#
-#   pip install -r requirements-cpu.txt
-#
-# Training on CPU is impractical (hours become days), but everything else works:
-# run.py falls back to CPU automatically, and every analysis tool in tools/ is
-# CPU-only anyway. This file exists so a teammate without a GPU is not blocked
-# from contributing on day one.
-#
-# requirements.txt remains THE environment specification -- it is the pip freeze
-# of the machine that trained models/model.pt. This file is a convenience.
-
-colorama==0.4.6
-contourpy==1.3.3
-cycler==0.12.1
-filelock==3.29.0
-fonttools==4.63.0
-fsspec==2026.4.0
-Jinja2==3.1.6
-kiwisolver==1.5.0
-lpips==0.1.4
-MarkupSafe==3.0.3
-matplotlib==3.11.1
-mpmath==1.3.0
-networkx==3.6.1
-numpy==2.4.4
-packaging==26.3
-pillow==12.2.0
-pyparsing==3.3.2
-python-dateutil==2.9.0.post0
-scipy==1.18.0
-six==1.17.0
-sympy==1.14.0
-torch==2.13.0
-torchvision==0.28.0
-tqdm==4.70.0
-typing_extensions==4.15.0
+# CPU-only inference on Windows/Linux, matching the tested PyTorch release.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.8.0+cpu
+numpy>=2.1,<3

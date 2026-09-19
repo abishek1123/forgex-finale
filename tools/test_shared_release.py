@@ -85,6 +85,21 @@ class ReleaseTests(unittest.TestCase):
                 [np.zeros((128, 128), np.float32)], self.options(), ROOT))
             self.assertIn(16, backend._failed)
 
+    def test_required_trt_rejects_incompatible_runtime(self):
+        with patch.object(backend, '_failed', set()), \
+             patch.dict(sys.modules, {'tensorrt': SimpleNamespace(__version__='incompatible')}):
+            with self.assertRaisesRegex(RuntimeError, 'Required TensorRT inference failed'):
+                backend.try_restore(SimpleNamespace(body=list(range(16))),
+                    [np.zeros((128, 128), np.float32)], self.options(require_trt=True), ROOT)
+
+    def test_required_trt_rejects_other_weights_and_unsupported_size(self):
+        model = SimpleNamespace(body=list(range(16)))
+        with self.assertRaisesRegex(RuntimeError, 'square inputs'):
+            backend.try_restore(model, [np.zeros((64, 64), np.float32)], self.options(require_trt=True), ROOT)
+        with patch.object(backend, 'digest', side_effect=['custom', 'engine']):
+            with self.assertRaisesRegex(RuntimeError, 'weights do not match'):
+                backend.try_restore(model, [np.zeros((128, 128), np.float32)], self.options(require_trt=True), ROOT)
+
 
 if __name__ == '__main__':
     unittest.main()

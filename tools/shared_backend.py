@@ -24,18 +24,25 @@ def try_restore(model, arrays, options, root):
     """Return owned CPU arrays, or None to use the caller's same-depth model."""
     global _runtime, _stream
     depth = len(model.body)
+    required = getattr(options, 'require_trt', False)
     if options.no_trt or options.half or not options.fp16 or options.profile:
         return None
     if depth not in DEPTHS or depth in _failed or not arrays:
+        if required:
+            raise RuntimeError('Required TensorRT exit is unavailable or the batch is empty')
         return None
     shape = arrays[0].shape
     if len(shape) != 2 or shape[0] != shape[1] or shape[0] not in (32, 128, 256, 512):
+        if required:
+            raise RuntimeError('Required TensorRT engines support square inputs 32/128/256/512 only')
         return None
     directory = Path(root) / 'deployment/h100_shared/models_native_r1'
     weights = Path(options.weights) if options.weights else Path(root) / 'models/model.pt'
     try:
         # A user-supplied checkpoint must never accidentally run another set of engines.
         if digest(weights) != digest(directory / 'model_weights.pt'):
+            if required:
+                raise RuntimeError('Selected weights do not match the TensorRT deployment weights')
             return None
         import torch
         import tensorrt as trt
@@ -68,6 +75,8 @@ def try_restore(model, arrays, options, root):
             try_restore._announced = getattr(try_restore, '_announced', set()) | {depth}
         return outputs
     except Exception as exc:
+        if required:
+            raise RuntimeError(f'Required TensorRT inference failed at depth {depth}: {exc}') from exc
         _failed.add(depth)
         print(f'  TensorRT unavailable at depth {depth}; using same-depth PyTorch: {type(exc).__name__}: {exc}',
               file=sys.stderr, flush=True)

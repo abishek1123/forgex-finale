@@ -18,9 +18,10 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-GOOD_SHA = "f95377a21e86b02ad3add4f68c784b439ae36e53"
+GOOD_SHA = "40add39d927e5c265a7adbee22321932f7c48791"
 KNOWN = {
-    GOOD_SHA: "e1f_gate-120 (the shipped model)",
+    GOOD_SHA: "mx120-s0-shared (the shipped five-exit model)",
+    "f95377a21e86b02ad3add4f68c784b439ae36e53": "e1f_gate-120 (previous release)",
     "61587e96f554f32d7538651664b58e4dfe02f2ac":
         "e1f_gate-120 TRAINING checkpoint -- right weights, wrong container; "
         "deploy it with swap.py, which strips it to {state_dict, config}",

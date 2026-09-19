@@ -161,7 +161,7 @@ def _sha1_file(path):
 def _trt_dispatch(argv):
     """Never returns if TensorRT can serve this invocation; otherwise returns None."""
     try:
-        if "--no-trt" in argv or _TORCH_ONLY.intersection(argv) or _flag(argv, "--weights") is not None or _flag(argv, "--knob") is not None:
+        if "--no-trt" in argv or "--require-trt" in argv or _TORCH_ONLY.intersection(argv) or _flag(argv, "--weights") is not None or _flag(argv, "--knob") is not None:
             return
         if _flag(argv, "--device") == "cpu":
             return
@@ -543,6 +543,8 @@ def restore_batch(model, arrays, device, use_amp, tta):
         try:
             from tools.shared_backend import try_restore
         except ImportError:
+            if getattr(_SHARED_OPTIONS, 'require_trt', False):
+                raise RuntimeError('Required TensorRT helper is missing from this package')
             pass  # The minimal four-item submission can still run PyTorch.
         else:
             accelerated = try_restore(model, arrays, _SHARED_OPTIONS, HERE)
@@ -673,8 +675,13 @@ def main():
                         "serve the request. Consumed by the dispatch probe at the "
                         "top of this file, above `import torch`; it is declared "
                         "here so argparse accepts it and --help documents it.")
+    p.add_argument("--require-trt", action="store_true",
+                   help="require the matching shared TensorRT engine; fail instead of falling back")
     p.set_defaults(fp16=True)
     a = p.parse_args()
+    if a.require_trt and (a.no_trt or a.device == "cpu" or a.tta or a.half
+                          or not a.fp16 or a.profile or a.timing):
+        p.error("--require-trt conflicts with CPU/PyTorch-only or precision/profiling options")
     if a.knob is not None:
         if a.depth != 0 or a.budget_ms > 0:
             p.error("--knob cannot be combined with --depth or --budget-ms")
@@ -749,6 +756,9 @@ def main():
                  f"       directory contains: {listing}"
                  + ("" if len(listing) < 12 else " ..."))
 
+    if os.path.realpath(in_dir) == os.path.realpath(a.output_dir):
+        p.error("output_dir must differ from the input image directory; inputs will not be overwritten")
+
     # ---- read every input on a thread pool while CUDA is still initialising ----
     _mark("argparse + list input dir")
     reader = ThreadPoolExecutor(max_workers=a.workers)
@@ -764,7 +774,13 @@ def main():
     _mark("join CUDA thread")                       # by now it has almost certainly finished
     device = torch.device("cuda" if (a.device in ("auto", "cuda")
                                      and torch.cuda.is_available()) else "cpu")
+    if a.require_trt and device.type != "cuda":
+        sys.exit("ERROR: --require-trt needs CUDA and compatible TensorRT engines; no CUDA device is available")
     use_amp = a.fp16 and device.type == "cuda"
+    if not a.fp16:
+        # Verification requests true FP32, including convolution on CUDA.
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
     if a.batch <= 0:
         a.batch = 32 if device.type == "cuda" else 1
 
@@ -788,6 +804,8 @@ def main():
     depth, knob_note = resolve_depth(a, nb_full)
     if depth is not None:
         model.body = nn.Sequential(*list(model.body)[:depth])
+    if a.require_trt and (cfg.get("variant") != "shared" or len(model.body) not in (3, 6, 10, 13, 16)):
+        sys.exit("ERROR: --require-trt needs the shared checkpoint at depth 3, 6, 10, 13 or 16")
 
     _mark("build model + weights to device")
     n_params = sum(q.numel() for q in model.parameters())

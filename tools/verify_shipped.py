@@ -9,7 +9,7 @@ Confirms three things, in order, and stops at the first failure:
      not by size. Four files on a typical dev machine are 5,493,743 bytes and
      represent THREE different models. Size proves nothing.
   2. run.py executes and produces one output per input.
-  3. Those outputs are BYTE-IDENTICAL to the committed outputs/.
+  3. FP32 outputs match committed outputs/ within 1e-5 across CPU/CUDA runtimes.
 
 Exits 0 (green) or 1 (red). No interpretation required.
 
@@ -22,6 +22,7 @@ import hashlib
 import os
 import subprocess
 import sys
+import tempfile
 
 import numpy as np
 
@@ -90,13 +91,10 @@ def main():
         print("\nPARTIAL -- the hash is correct, but the output was not verified.")
         sys.exit(0)
 
-    out = os.path.join(REPO, "_verify_tmp")
+    out = tempfile.mkdtemp(prefix="forgex_verify_")
     print(f"[2/3] running run.py over {data} ...")
-    # --no-trt: this check is a BYTE comparison against the committed outputs,
-    # which were produced on the PyTorch path. TensorRT agrees to ~1e-4 (worth
-    # 0.0001 dB), which is correct but not byte-identical -- so once engines
-    # exist on a machine this check would fail for a reason that is not a fault.
-    r = subprocess.run([sys.executable, "run.py", data, out, "--no-trt"], cwd=REPO,
+    # Compare true FP32 PyTorch output; TensorRT precision is checked separately.
+    r = subprocess.run([sys.executable, "run.py", data, out, "--no-trt", "--no-fp16"], cwd=REPO,
                        capture_output=True, text=True)
     if r.returncode != 0:
         print("      FAIL:", (r.stdout + r.stderr)[-500:])
@@ -104,10 +102,15 @@ def main():
         sys.exit(1)
     print("      OK")
 
-    # ---- 3. byte-compare against the committed outputs -------------------
+    # ---- 3. compare against the committed outputs ------------------------
     print("[3/3] comparing to committed outputs/ ...")
     ref = os.path.join(REPO, "outputs")
     names = sorted(os.path.basename(p) for p in glob.glob(os.path.join(out, "*.npy")))
+    source = os.path.join(data, 'NoisyLR') if os.path.isdir(os.path.join(data, 'NoisyLR')) else data
+    inputs = sorted(os.path.basename(p) for p in glob.glob(os.path.join(source, '*.npy')))
+    if names != inputs:
+        print('      FAIL: output filenames do not exactly match the inputs')
+        ok = False
     if not names:
         print("      FAIL: no outputs produced")
         ok = False
@@ -118,13 +121,17 @@ def main():
             if not os.path.isfile(rp):
                 missing += 1
                 continue
-            d = float(np.abs(np.load(os.path.join(out, n)).astype(np.float64)
-                             - np.load(rp).astype(np.float64)).max())
+            actual, expected = np.load(os.path.join(out, n)), np.load(rp)
+            if actual.shape != expected.shape or actual.dtype != np.float32 or not np.isfinite(actual).all():
+                print(f"      FAIL: invalid output contract for {n}")
+                ok = False
+                continue
+            d = float(np.abs(actual.astype(np.float64) - expected.astype(np.float64)).max())
             worst = max(worst, d)
             differing += d > 0
         print(f"      {len(names)} files, max|diff| = {worst:.3e}, "
               f"differing = {differing}, not in outputs/ = {missing}")
-        if worst != 0.0 or missing:
+        if worst > 1e-5 or missing:
             print("      FAIL")
             ok = False
         else:

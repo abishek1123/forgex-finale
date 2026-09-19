@@ -5,12 +5,15 @@ Seven requirements, from the optimisation brief:
   1 compare outputs to reference   2 shape   3 float32   4 finite
   5 range [0,1]                    6 PSNR/SSIM/LPIPS      7 stress suite (separate)
 """
+import csv
+from pathlib import Path
 import numpy as np
 
-# The SHIPPED model, e1f_gate-120 (models/model.pt sha1 f95377a21e86...), on the
-# organisers' 297-image test set. Per-image means -- see kla2/results/final.csv.
-REF = dict(psnr=23.8296, ssim=0.62104, lpips=0.18126)
-# Round 2, superseded: dict(psnr=23.632, ssim=0.60792, lpips=0.19287)
+# Current shared-frontier full-depth reference; use the actual recorded row.
+_evidence = Path(__file__).resolve().parents[1] / 'deployment/h100_shared/evidence/multiexit_297.csv'
+with _evidence.open(newline='') as _stream:
+    _row = next(r for r in csv.DictReader(_stream) if r['id'] == 'shared-frontier' and r['depth'] == '16')
+REF = {name: float(_row[name]) for name in ('psnr', 'ssim', 'lpips')}
 
 
 def contract(out, lr_shape_list=None):

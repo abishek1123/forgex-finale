@@ -46,6 +46,8 @@ python run.py INPUT_DIR OUTPUT_DIR --knob 5
 
 Native engine compatibility depends on the GPU, platform and TensorRT runtime. Other environments may need a rebuild. No universal portability is claimed. To require TensorRT and fail visibly if it cannot run, use the bundle's strict runner:
 
+The root runner also supports `python run.py INPUT_DIR OUTPUT_DIR --knob 5 --require-trt`. This rejects fallback, incompatible flags and unsupported engine sizes. Run `python tools/audit_h100.py INPUT_DIR AUDIT_OUTPUT_DIR` on a matching H100 to check all five exits, numerical parity and the supported shapes. See [current release status](docs/RELEASE_STATUS.md) for the exact checkpoint identity and audit boundaries.
+
 ```bash
 python deployment/h100_shared/run.py INPUT_DIR OUTPUT_DIR --engines deployment/h100_shared/models_native_r1 --knob 5 --batch 8 --backend tensorrt
 ```

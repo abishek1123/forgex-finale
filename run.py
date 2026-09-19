@@ -67,6 +67,7 @@ MIN_SAFE_DEPTH = 3                 # single definition; see the note further dow
 DATASHEET = "knob_datasheet.json"
 _ENGINES = os.path.join(HERE, "models", "engines")
 _TORCH_ONLY = {"--tta", "--half", "--no-fp16", "--list-knob", "--profile"}
+_SHARED_OPTIONS = None
 
 
 def load_datasheet():
@@ -160,7 +161,7 @@ def _sha1_file(path):
 def _trt_dispatch(argv):
     """Never returns if TensorRT can serve this invocation; otherwise returns None."""
     try:
-        if "--no-trt" in argv or _TORCH_ONLY.intersection(argv):
+        if "--no-trt" in argv or _TORCH_ONLY.intersection(argv) or _flag(argv, "--weights") is not None or _flag(argv, "--knob") is not None:
             return
         if _flag(argv, "--device") == "cpu":
             return
@@ -373,6 +374,12 @@ def build_model(cfg, state=None):
         kind = "gate" if any(k.startswith("out.") or ".norm.g" in k for k in state) else ""
     keep = ("ch", "nb", "scale", "res_scale")
     kw = {k: cfg[k] for k in keep if k in (cfg or {})}
+    if kind == "multiexit_gate":
+        if cfg.get("variant") != "shared":
+            raise ValueError("This runner supports shared-head multi-exit checkpoints, not adapters")
+        model = GateRestorer(**kw)
+        model.config.update(cfg)
+        return model, "shared_gate"
     if kind == "gate":
         return GateRestorer(**kw), "e1f_gate"
     return Restorer(**kw), "forgex"
@@ -529,6 +536,18 @@ def load_npy(path):
 def restore_batch(model, arrays, device, use_amp, tta):
     """arrays: list of equally-shaped (H,W) float32 -> list of (2H,2W) float32."""
     global _D2H
+    # The frozen shared engines are optional. The existing PyTorch path remains
+    # available for incompatible runtimes, flags, sizes and explicit weights.
+    if (_SHARED_OPTIONS is not None and not _TIMING and not tta
+            and device.type == "cuda" and model.config.get("variant") == "shared"):
+        try:
+            from tools.shared_backend import try_restore
+        except ImportError:
+            pass  # The minimal four-item submission can still run PyTorch.
+        else:
+            accelerated = try_restore(model, arrays, _SHARED_OPTIONS, HERE)
+            if accelerated is not None:
+                return accelerated
     _cuda = device.type == "cuda"
     if _TIMING and _cuda:
         _hs, _he = torch.cuda.Event(True), torch.cuda.Event(True); _hs.record()
@@ -639,6 +658,8 @@ def main():
                         "0 = full depth (default, unchanged behaviour). Lower is "
                         "faster and lower quality; the network degrades toward the "
                         "bicubic baseline, never toward garbage.")
+    p.add_argument("--knob", type=int, choices=range(1, 6), default=None,
+                   help="trained shared-head exits: 1/2/3/4/5 select 3/6/10/13/16 blocks")
     p.add_argument("--budget-ms", type=float, default=0.0,
                    help="QUALITY/SPEED KNOB: pick the deepest setting whose MEASURED "
                         "ms/image fits this budget, using models/knob_datasheet.json "
@@ -654,6 +675,12 @@ def main():
                         "here so argparse accepts it and --help documents it.")
     p.set_defaults(fp16=True)
     a = p.parse_args()
+    if a.knob is not None:
+        if a.depth != 0 or a.budget_ms > 0:
+            p.error("--knob cannot be combined with --depth or --budget-ms")
+        a.depth = (3, 6, 10, 13, 16)[a.knob - 1]
+    global _SHARED_OPTIONS
+    _SHARED_OPTIONS = a
     global _TIMING
     _TIMING = a.timing
 

@@ -1,124 +1,52 @@
 {
-  "gpu": "NVIDIA H100 NVL",
-  "weight_sha1": "f95377a21e86",
-  "batch": 32,
-  "dtype": "fp16",
+  "gpu": "NVIDIA H100 80GB HBM3",
+  "weight_sha1": "40add39d927e5c265a7adbee22321932f7c48791",
+  "batch": 1,
+  "dtype": "TensorRT mixed FP16",
   "hw": 128,
   "nb_full": 16,
-  "rounds": 5,
-  "note": "ms_per_img measured on this GPU; FLOPs do not predict it. Quality columns are hardware-independent. Re-measure timings on your own hardware with tools/calibrate_knob.py.",
+  "rounds": 100,
+  "note": "Warm GPU median only, 30 warmups / 100 iterations. Excludes I/O, transfers and startup; not an end-to-end deadline. Quality: shared-frontier on 297 images.",
   "rows": [
     {
       "depth": 3,
-      "ms_per_img": 0.4041,
-      "spread_pct": 1.0,
-      "gflops": 11.707,
-      "psnr": 22.7333,
-      "ssim": 0.50011
-    },
-    {
-      "depth": 4,
-      "ms_per_img": 0.4877,
-      "spread_pct": 0.5,
-      "gflops": 14.192,
-      "psnr": 22.7849,
-      "ssim": 0.50128
-    },
-    {
-      "depth": 5,
-      "ms_per_img": 0.5696,
-      "spread_pct": 1.5,
-      "gflops": 16.678,
-      "psnr": 22.8953,
-      "ssim": 0.50754
+      "knob": 1,
+      "ms_per_img": 0.3697119951248169,
+      "psnr": 23.56244618721905,
+      "ssim": 0.5862670782138202,
+      "lpips": 0.3851411386772438
     },
     {
       "depth": 6,
-      "ms_per_img": 0.6492,
-      "spread_pct": 1.5,
-      "gflops": 19.163,
-      "psnr": 22.9746,
-      "ssim": 0.51318
-    },
-    {
-      "depth": 7,
-      "ms_per_img": 0.7307,
-      "spread_pct": 1.0,
-      "gflops": 21.648,
-      "psnr": 23.0457,
-      "ssim": 0.51643
-    },
-    {
-      "depth": 8,
-      "ms_per_img": 0.811,
-      "spread_pct": 0.7,
-      "gflops": 24.133,
-      "psnr": 23.168,
-      "ssim": 0.52488
-    },
-    {
-      "depth": 9,
-      "ms_per_img": 0.8948,
-      "spread_pct": 1.0,
-      "gflops": 26.618,
-      "psnr": 23.2131,
-      "ssim": 0.52879
+      "knob": 2,
+      "ms_per_img": 0.548335999250412,
+      "psnr": 23.65254985738969,
+      "ssim": 0.5961757748315631,
+      "lpips": 0.36941735085212823
     },
     {
       "depth": 10,
-      "ms_per_img": 0.977,
-      "spread_pct": 1.0,
-      "gflops": 29.104,
-      "psnr": 23.287,
-      "ssim": 0.53613
-    },
-    {
-      "depth": 11,
-      "ms_per_img": 1.0602,
-      "spread_pct": 0.9,
-      "gflops": 31.589,
-      "psnr": 23.3111,
-      "ssim": 0.54026
-    },
-    {
-      "depth": 12,
-      "ms_per_img": 1.1417,
-      "spread_pct": 0.9,
-      "gflops": 34.074,
-      "psnr": 23.467,
-      "ssim": 0.555
+      "knob": 3,
+      "ms_per_img": 0.7906399965286255,
+      "psnr": 23.756884734957524,
+      "ssim": 0.6080880458106096,
+      "lpips": 0.349850864472614
     },
     {
       "depth": 13,
-      "ms_per_img": 1.2248,
-      "spread_pct": 1.0,
-      "gflops": 36.559,
-      "psnr": 23.5803,
-      "ssim": 0.5655
-    },
-    {
-      "depth": 14,
-      "ms_per_img": 1.306,
-      "spread_pct": 0.7,
-      "gflops": 39.045,
-      "psnr": 23.7114,
-      "ssim": 0.58017
-    },
-    {
-      "depth": 15,
-      "ms_per_img": 1.3889,
-      "spread_pct": 0.8,
-      "gflops": 41.53,
-      "psnr": 23.8269,
-      "ssim": 0.59228
+      "knob": 4,
+      "ms_per_img": 0.9716959893703461,
+      "psnr": 23.807545488445342,
+      "ssim": 0.614804780443108,
+      "lpips": 0.3212722945042732
     },
     {
       "depth": 16,
-      "ms_per_img": 1.4705,
-      "spread_pct": 0.7,
-      "gflops": 44.015,
-      "psnr": 23.8296,
-      "ssim": 0.62104
+      "knob": 5,
+      "ms_per_img": 1.1479679942131042,
+      "psnr": 23.825089809466157,
+      "ssim": 0.6221931019816735,
+      "lpips": 0.17757986731802172
     }
   ]
 }

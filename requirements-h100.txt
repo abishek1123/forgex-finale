@@ -1,0 +1,5 @@
+# Matching Linux H100 environment for the committed native engines.
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.8.0+cu128
+numpy==2.1.2
+tensorrt-cu12==10.13.3.9

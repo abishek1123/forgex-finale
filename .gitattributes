@@ -4,3 +4,8 @@
 *.pt binary
 *.npy binary
 *.png binary
+
+*.engine binary
+*.onnx binary
+# Preserve the exact archived build bytes, including original source whitespace.
+deployment/h100_shared/** -text -whitespace

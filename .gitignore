@@ -41,3 +41,8 @@ models/engines/*.ref_out.npy
 
 # session scratch, superseded working files
 _archive/
+
+# Selected shared checkpoint and validated native H100 bundle, explicitly published.
+!deployment/h100_shared/checkpoints/shared_best_frontier.pt
+!deployment/h100_shared/models_native_r1/model_weights.pt
+!deployment/h100_shared/models_native_r1/*.onnx

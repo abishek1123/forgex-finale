@@ -28,9 +28,10 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 
-GOOD = "f95377a21e86b02ad3add4f68c784b439ae36e53"        # e1f_gate-120, deploy
+GOOD = "40add39d927e5c265a7adbee22321932f7c48791"        # trained shared head, deploy
 KNOWN = {
-    GOOD:                                       "e1f_gate-120        CORRECT",
+    GOOD:                                       "mx120-s0-shared     CORRECT",
+    "f95377a21e86b02ad3add4f68c784b439ae36e53": "e1f_gate-120 PREVIOUS release",
     "61587e96f554f32d7538651664b58e4dfe02f2ac": "e1f_gate-120 TRAINING checkpoint -- "
                                                 "right weights, wrong container. "
                                                 "Deploy it with swap.py, which strips "
@@ -123,7 +124,7 @@ def main():
             differing += d > 0
         print(f"      {len(names)} files, max|diff| = {worst:.3e}, "
               f"differing = {differing}, not in outputs/ = {missing}")
-        if worst != 0.0:
+        if worst != 0.0 or missing:
             print("      FAIL")
             ok = False
         else:

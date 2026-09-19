@@ -1,0 +1,286 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "depth": 3,
+      "size": 32,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.152557373046875e-07
+    },
+    {
+      "depth": 3,
+      "size": 32,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.152557373046875e-07
+    },
+    {
+      "depth": 3,
+      "size": 128,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 3,
+      "size": 128,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 3,
+      "size": 256,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0728836059570312e-06
+    },
+    {
+      "depth": 3,
+      "size": 256,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0728836059570312e-06
+    },
+    {
+      "depth": 3,
+      "size": 512,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 3,
+      "size": 512,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 6,
+      "size": 32,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 8.344650268554688e-07
+    },
+    {
+      "depth": 6,
+      "size": 32,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 8.344650268554688e-07
+    },
+    {
+      "depth": 6,
+      "size": 128,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 6,
+      "size": 128,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 6,
+      "size": 256,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1324882507324219e-06
+    },
+    {
+      "depth": 6,
+      "size": 256,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1324882507324219e-06
+    },
+    {
+      "depth": 6,
+      "size": 512,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.2516975402832031e-06
+    },
+    {
+      "depth": 6,
+      "size": 512,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.2516975402832031e-06
+    },
+    {
+      "depth": 10,
+      "size": 32,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.152557373046875e-07
+    },
+    {
+      "depth": 10,
+      "size": 32,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.152557373046875e-07
+    },
+    {
+      "depth": 10,
+      "size": 128,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0728836059570312e-06
+    },
+    {
+      "depth": 10,
+      "size": 128,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0728836059570312e-06
+    },
+    {
+      "depth": 10,
+      "size": 256,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 10,
+      "size": 256,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 10,
+      "size": 512,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 10,
+      "size": 512,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 13,
+      "size": 32,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.748603820800781e-07
+    },
+    {
+      "depth": 13,
+      "size": 32,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.748603820800781e-07
+    },
+    {
+      "depth": 13,
+      "size": 128,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 13,
+      "size": 128,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 13,
+      "size": 256,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1324882507324219e-06
+    },
+    {
+      "depth": 13,
+      "size": 256,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1324882507324219e-06
+    },
+    {
+      "depth": 13,
+      "size": 512,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 13,
+      "size": 512,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 16,
+      "size": 32,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.152557373046875e-07
+    },
+    {
+      "depth": 16,
+      "size": 32,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 7.152557373046875e-07
+    },
+    {
+      "depth": 16,
+      "size": 128,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 16,
+      "size": 128,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.0132789611816406e-06
+    },
+    {
+      "depth": 16,
+      "size": 256,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 16,
+      "size": 256,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.1920928955078125e-06
+    },
+    {
+      "depth": 16,
+      "size": 512,
+      "failure": "FileNotFoundError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.3113021850585938e-06
+    },
+    {
+      "depth": 16,
+      "size": 512,
+      "failure": "RuntimeError",
+      "backend": "pytorch_cuda",
+      "max_abs": 1.3113021850585938e-06
+    }
+  ],
+  "cpu_only_passed": true
+}

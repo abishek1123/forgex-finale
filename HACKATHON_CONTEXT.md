@@ -1,5 +1,22 @@
 # HACKATHON CONTEXT — live state
 
+## 2026-09-19: original shared checkpoint and H100 engines preserved
+
+The selected shared release candidate and its five native H100 TensorRT engines
+are preserved in [`deployment/h100_shared`](deployment/h100_shared/README.md).
+This is the original `mx120-s0-shared/best_frontier.pt`, SHA-256
+`cf66f9f10f5dbfd517b8758bcd9a56daafa91b0dbf28b99c65626c5b1f67f8ea`.
+The later combined-data fine-tuning attempt is excluded by the final decision.
+
+The package includes the training checkpoint, inference weights, engine binaries,
+ONNX graphs, matching source and recorded validation evidence. The root runner
+now loads this shared model and uses compatible engines with PyTorch fallback. These
+engines target the measured native H100 / TensorRT 10.13.3.9 environment.
+See the bundle README for exact commands, supported sizes and validation scope.
+
+The historical release descriptions below refer to the earlier root submission.
+
+
 > **Historical / superseded — not the shipped model.** This document describes `pr50-w50-lp05-120` (1,368,705 params; 23.632 PSNR / 0.60791 SSIM / 0.19288 LPIPS), the model shipped at **Round 2**.
 >
 > The Grand Finale ships **`e1f_gate-120`** — 1,346,360 params, **23.8297 PSNR / 0.62104 SSIM / 0.18126 LPIPS**, `models/model.pt` sha1 `f95377a21e86…`. Numbers below are kept as the record of how that decision was reached, not as a description of what ships.

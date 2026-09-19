@@ -1,0 +1,9 @@
+{
+  "model": "mx120-s0-shared/best_frontier.pt",
+  "n": 297,
+  "psnr": 23.82490278884077,
+  "expected_psnr": 23.825089809466157,
+  "deploy_sha1": "40add39d927e5c265a7adbee22321932f7c48791",
+  "checkpoint_sha256": "cf66f9f10f5dbfd517b8758bcd9a56daafa91b0dbf28b99c65626c5b1f67f8ea",
+  "method": "CPU FP32, four threads, clamped output; root model agrees with reference at all five exits"
+}
